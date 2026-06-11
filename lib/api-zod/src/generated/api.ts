@@ -18,6 +18,17 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary Get current user role and investor profile
+ */
+export const GetMeResponse = zod.object({
+  "clerkUserId": zod.string(),
+  "role": zod.enum(['admin', 'investor']),
+  "investorId": zod.number().nullish(),
+  "investorName": zod.string().nullish()
+})
+
+
+/**
  * @summary List all cattle
  */
 export const ListCattleQueryParams = zod.object({
@@ -126,6 +137,7 @@ export const ListInvestorsResponseItem = zod.object({
   "name": zod.string(),
   "email": zod.string().nullish(),
   "phone": zod.string().nullish(),
+  "clerkUserId": zod.string().nullish(),
   "cattleCount": zod.number().optional(),
   "createdAt": zod.string()
 })
@@ -157,6 +169,7 @@ export const GetInvestorResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().nullish(),
   "phone": zod.string().nullish(),
+  "clerkUserId": zod.string().nullish(),
   "cattleCount": zod.number().optional(),
   "createdAt": zod.string()
 })
@@ -175,7 +188,8 @@ export const UpdateInvestorParams = zod.object({
 export const UpdateInvestorBody = zod.object({
   "name": zod.string().min(1).optional(),
   "email": zod.string().nullish(),
-  "phone": zod.string().nullish()
+  "phone": zod.string().nullish(),
+  "clerkUserId": zod.string().nullish()
 })
 
 export const UpdateInvestorResponse = zod.object({
@@ -183,6 +197,7 @@ export const UpdateInvestorResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().nullish(),
   "phone": zod.string().nullish(),
+  "clerkUserId": zod.string().nullish(),
   "cattleCount": zod.number().optional(),
   "createdAt": zod.string()
 })

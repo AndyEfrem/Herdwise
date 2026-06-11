@@ -13,4 +13,6 @@ export interface InvestorUpdate {
   email?: string | null;
   /** @nullable */
   phone?: string | null;
+  /** @nullable */
+  clerkUserId?: string | null;
 }

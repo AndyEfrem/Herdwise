@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, ilike, and, type SQL } from "drizzle-orm";
+import { getAuth } from "@clerk/express";
 import { db, cattleTable, investorsTable } from "@workspace/db";
 import {
   ListCattleQueryParams,
@@ -11,6 +12,12 @@ import {
   DeleteAnimalParams,
 } from "@workspace/api-zod";
 
+async function getInvestorIdForUser(clerkUserId: string | null): Promise<number | null> {
+  if (!clerkUserId) return null;
+  const [inv] = await db.select({ id: investorsTable.id }).from(investorsTable).where(eq(investorsTable.clerkUserId, clerkUserId)).limit(1);
+  return inv?.id ?? null;
+}
+
 const router: IRouter = Router();
 
 router.get("/cattle", async (req, res): Promise<void> => {
@@ -20,7 +27,15 @@ router.get("/cattle", async (req, res): Promise<void> => {
     return;
   }
 
-  const { status, investorId, search } = query.data;
+  const { userId } = getAuth(req);
+  const callerInvestorId = await getInvestorIdForUser(userId ?? null);
+
+  const { status, search } = query.data;
+  let { investorId } = query.data;
+
+  // Investors can only see their own cattle
+  if (callerInvestorId !== null) investorId = callerInvestorId;
+
   const conditions: SQL[] = [];
 
   if (status) conditions.push(eq(cattleTable.status, status));
@@ -86,6 +101,9 @@ router.get("/cattle/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  const { userId } = getAuth(req);
+  const callerInvestorId = await getInvestorIdForUser(userId ?? null);
+
   const [row] = await db
     .select({
       id: cattleTable.id,
@@ -104,6 +122,12 @@ router.get("/cattle/:id", async (req, res): Promise<void> => {
 
   if (!row) {
     res.status(404).json({ error: "Animal not found" });
+    return;
+  }
+
+  // Investors can only view their own cattle
+  if (callerInvestorId !== null && row.investorId !== callerInvestorId) {
+    res.status(403).json({ error: "Access denied" });
     return;
   }
 

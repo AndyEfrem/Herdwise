@@ -19,6 +19,7 @@ router.get("/investors", async (_req, res): Promise<void> => {
       name: investorsTable.name,
       email: investorsTable.email,
       phone: investorsTable.phone,
+      clerkUserId: investorsTable.clerkUserId,
       createdAt: investorsTable.createdAt,
       cattleCount: count(cattleTable.id),
     })
@@ -31,6 +32,7 @@ router.get("/investors", async (_req, res): Promise<void> => {
     ...r,
     email: r.email ?? null,
     phone: r.phone ?? null,
+    clerkUserId: r.clerkUserId ?? null,
     createdAt: r.createdAt.toISOString(),
   })));
 });
@@ -66,6 +68,7 @@ router.get("/investors/:id", async (req, res): Promise<void> => {
       name: investorsTable.name,
       email: investorsTable.email,
       phone: investorsTable.phone,
+      clerkUserId: investorsTable.clerkUserId,
       createdAt: investorsTable.createdAt,
       cattleCount: count(cattleTable.id),
     })
@@ -83,6 +86,7 @@ router.get("/investors/:id", async (req, res): Promise<void> => {
     ...row,
     email: row.email ?? null,
     phone: row.phone ?? null,
+    clerkUserId: row.clerkUserId ?? null,
     createdAt: row.createdAt.toISOString(),
   }));
 });
@@ -120,6 +124,7 @@ router.patch("/investors/:id", async (req, res): Promise<void> => {
     ...investor,
     email: investor.email ?? null,
     phone: investor.phone ?? null,
+    clerkUserId: investor.clerkUserId ?? null,
     cattleCount,
     createdAt: investor.createdAt.toISOString(),
   });

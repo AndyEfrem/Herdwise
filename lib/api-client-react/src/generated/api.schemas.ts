@@ -64,6 +64,8 @@ export interface Investor {
   email?: string | null;
   /** @nullable */
   phone?: string | null;
+  /** @nullable */
+  clerkUserId?: string | null;
   cattleCount?: number;
   createdAt: string;
 }
@@ -84,6 +86,8 @@ export interface InvestorUpdate {
   email?: string | null;
   /** @nullable */
   phone?: string | null;
+  /** @nullable */
+  clerkUserId?: string | null;
 }
 
 export interface Treatment {
@@ -119,6 +123,23 @@ export interface TreatmentUpdate {
   completedAt?: string | null;
   /** @nullable */
   notes?: string | null;
+}
+
+export type UserProfileRole = typeof UserProfileRole[keyof typeof UserProfileRole];
+
+
+export const UserProfileRole = {
+  admin: 'admin',
+  investor: 'investor',
+} as const;
+
+export interface UserProfile {
+  clerkUserId: string;
+  role: UserProfileRole;
+  /** @nullable */
+  investorId?: number | null;
+  /** @nullable */
+  investorName?: string | null;
 }
 
 export interface WeightRecord {

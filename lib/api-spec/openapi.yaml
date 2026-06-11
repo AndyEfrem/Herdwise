@@ -9,6 +9,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Auth and user identity
   - name: cattle
     description: Cattle management
   - name: investors
@@ -31,6 +33,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user role and investor profile
+      responses:
+        "200":
+          description: Current user identity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /cattle:
     get:
@@ -531,6 +552,8 @@ components:
           type: ["string", "null"]
         phone:
           type: ["string", "null"]
+        clerkUserId:
+          type: ["string", "null"]
         cattleCount:
           type: integer
         createdAt:
@@ -557,6 +580,8 @@ components:
         email:
           type: ["string", "null"]
         phone:
+          type: ["string", "null"]
+        clerkUserId:
           type: ["string", "null"]
 
     Treatment:
@@ -609,6 +634,20 @@ components:
         completedAt:
           type: ["string", "null"]
         notes:
+          type: ["string", "null"]
+
+    UserProfile:
+      type: object
+      required: [clerkUserId, role]
+      properties:
+        clerkUserId:
+          type: string
+        role:
+          type: string
+          enum: [admin, investor]
+        investorId:
+          type: ["integer", "null"]
+        investorName:
           type: ["string", "null"]
 
     WeightRecord:

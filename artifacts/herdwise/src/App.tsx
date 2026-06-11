@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Layout } from "@/components/layout";
+import { UserRoleProvider } from "@/hooks/use-user-role";
 import { Landing } from "@/pages/landing";
 import { Overview } from "@/pages/overview";
 import { CattleList } from "@/pages/cattle";
@@ -140,22 +141,24 @@ function ProtectedApp() {
   return (
     <>
       <Show when="signed-in">
-        <TooltipProvider>
-          <Layout>
-            <Switch>
-              <Route path="/overview" component={Overview} />
-              <Route path="/cattle" component={CattleList} />
-              <Route path="/cattle/:id" component={CattleDetail} />
-              <Route path="/investors" component={InvestorsList} />
-              <Route path="/investors/:id" component={InvestorDetail} />
-              <Route path="/treatments" component={TreatmentsList} />
-              <Route path="/reports" component={Reports} />
-              <Route path="/settings" component={Settings} />
-              <Route component={NotFound} />
-            </Switch>
-          </Layout>
-          <Toaster />
-        </TooltipProvider>
+        <UserRoleProvider>
+          <TooltipProvider>
+            <Layout>
+              <Switch>
+                <Route path="/overview" component={Overview} />
+                <Route path="/cattle" component={CattleList} />
+                <Route path="/cattle/:id" component={CattleDetail} />
+                <Route path="/investors" component={InvestorsList} />
+                <Route path="/investors/:id" component={InvestorDetail} />
+                <Route path="/treatments" component={TreatmentsList} />
+                <Route path="/reports" component={Reports} />
+                <Route path="/settings" component={Settings} />
+                <Route component={NotFound} />
+              </Switch>
+            </Layout>
+            <Toaster />
+          </TooltipProvider>
+        </UserRoleProvider>
       </Show>
       <Show when="signed-out">
         <Redirect to="/" />

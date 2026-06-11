@@ -13,6 +13,8 @@ export interface Investor {
   email?: string | null;
   /** @nullable */
   phone?: string | null;
+  /** @nullable */
+  clerkUserId?: string | null;
   cattleCount?: number;
   createdAt: string;
 }

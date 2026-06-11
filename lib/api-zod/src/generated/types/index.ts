@@ -22,5 +22,7 @@ export * from './treatment';
 export * from './treatmentInput';
 export * from './treatmentUpdate';
 export * from './upcomingCareItem';
+export * from './userProfile';
+export * from './userProfileRole';
 export * from './weightRecord';
 export * from './weightRecordInput';
