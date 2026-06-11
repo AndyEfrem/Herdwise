@@ -1,0 +1,245 @@
+# HerdWise – Livestock Investor Management Platform
+
+## Overview
+
+HerdWise is a cloud-based livestock management platform designed for cattle fattening farms that manage cattle on behalf of multiple investors.
+
+The farm owner manages all cattle on the farm, while investors can log in and view only the cattle they own.
+
+The system must replace paper-based livestock records and provide real-time access to cattle information, weight records, treatment history, and inventory reports.
+
+---
+
+# User Roles
+
+## Farm Owner (Administrator)
+
+The farm owner has full access to the system and can:
+
+* View all cattle on the farm.
+* View all investors.
+* Add, edit, and remove investors.
+* Register new cattle.
+* Assign cattle to investors.
+* Record cattle weights.
+* Record vaccinations and treatments.
+* Upload cattle photos.
+* Update cattle status.
+* Generate reports.
+* Manage user accounts.
+
+---
+
+## Investor
+
+Investors can:
+
+* Log in securely.
+* View only cattle assigned to them.
+* View cattle details.
+* View weight history.
+* View treatment and vaccination history.
+* View cattle photos.
+* Download reports related to their cattle.
+
+Investors must never be able to see cattle belonging to other investors.
+
+---
+
+# Dashboard
+
+## Administrator Dashboard
+
+Display:
+
+* Total cattle on farm.
+* Total active investors.
+* Number of active cattle.
+* Number of cattle sold.
+* Number of vaccinations due.
+* Recently added cattle.
+* Recent weight updates.
+
+---
+
+## Investor Dashboard
+
+Display:
+
+* Total cattle owned.
+* Active cattle.
+* Recent weight updates.
+* Recent treatments.
+* Recent photos.
+
+---
+
+# Investor Management
+
+Each investor record must contain:
+
+* Investor ID
+* Full Name
+* Email Address
+* Phone Number
+* Date Joined
+* Active / Inactive Status
+
+Each investor must have their own login credentials.
+
+---
+
+# Cattle Management
+
+Each animal must have:
+
+## Identification
+
+* Farm Tag Number (Unique)
+* Previous Tag Number
+* RFID Number (Future Feature)
+
+## Ownership
+
+* Assigned Investor
+* Date Received
+
+## Animal Information
+
+* Breed
+* Colour
+* Description
+* Sex
+* Estimated Age
+* Source Lot
+
+## Status
+
+* Active
+* Sold
+* Deceased
+* Transferred
+* Quarantined
+
+---
+
+# Weight Tracking
+
+Each animal must maintain a complete weight history.
+
+Weight records must include:
+
+* Date Recorded
+* Weight (kg)
+* Notes
+* Captured By
+
+The system must display weight gain trends and graphs.
+
+---
+
+# Vaccination and Treatment Records
+
+Each animal must maintain a complete medical history.
+
+Records must include:
+
+* Treatment Date
+* Vaccine or Treatment Name
+* Batch Number
+* Administered By
+* Notes
+* Next Due Date
+
+Examples:
+
+* 3-in-1 Vaccine
+* Deworming
+* Dipping
+* Antibiotic Treatment
+
+---
+
+# Photo Management
+
+Each animal must support multiple photos.
+
+Examples:
+
+* Front View
+* Side View
+* Tag Photo
+* Health Inspection Photo
+
+Photos must be available to the farm owner and the assigned investor.
+
+---
+
+# Search and Filtering
+
+The system must allow searching by:
+
+* Tag Number
+* Investor
+* Breed
+* Status
+* Date Received
+
+The system must allow filtering by:
+
+* Investor
+* Breed
+* Status
+* Vaccination Due
+* Weight Range
+
+---
+
+# Reports
+
+Generate reports for:
+
+## Farm Owner
+
+* Complete cattle inventory.
+* Cattle by investor.
+* Vaccination due report.
+* Weight gain report.
+* Active vs sold cattle.
+
+## Investor
+
+* My cattle inventory.
+* Weight history.
+* Treatment history.
+* Cattle photos.
+
+---
+
+# Security Requirements
+
+* Secure login system.
+* Role-based permissions.
+* Investors can only access their own cattle.
+* Administrators have full access.
+* All data must be securely stored.
+
+---
+
+# Future Features
+
+* QR code for each animal.
+* QR code scanning using a mobile phone.
+* RFID integration.
+* Mobile application.
+* WhatsApp notifications.
+* Vaccination reminders.
+* Feed management.
+* Multi-farm support.
+* Offline data capture.
+
+---
+
+# Main Goal
+
+Create a modern digital livestock management system that replaces paper records, gives the farm owner complete visibility of all cattle on the farm, and allows each investor to securely monitor only the cattle they own from anywhere.
