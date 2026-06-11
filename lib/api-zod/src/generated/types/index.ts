@@ -8,6 +8,7 @@
 
 export * from './animal';
 export * from './animalInput';
+export * from './animalProgress';
 export * from './animalUpdate';
 export * from './categoryCount';
 export * from './dashboardSummary';
@@ -17,12 +18,14 @@ export * from './healthStatus';
 export * from './herdStatusBreakdown';
 export * from './investor';
 export * from './investorInput';
+export * from './investorReport';
 export * from './investorReportRow';
 export * from './investorUpdate';
 export * from './listCattleParams';
 export * from './listTreatmentsParams';
 export * from './marketReadinessReport';
 export * from './reportsSummary';
+export * from './shareLink';
 export * from './treatment';
 export * from './treatmentInput';
 export * from './treatmentTotals';

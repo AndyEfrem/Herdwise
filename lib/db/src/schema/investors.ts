@@ -8,10 +8,11 @@ export const investorsTable = pgTable("investors", {
   email: text("email"),
   phone: text("phone"),
   clerkUserId: text("clerk_user_id").unique(),
+  shareToken: text("share_token").unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-export const insertInvestorSchema = createInsertSchema(investorsTable).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertInvestorSchema = createInsertSchema(investorsTable).omit({ id: true, createdAt: true, updatedAt: true, shareToken: true });
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investorsTable.$inferSelect;

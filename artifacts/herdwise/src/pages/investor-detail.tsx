@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Edit, Trash2, Box, Mail, Phone, Calendar, Link2, Link2Off, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Box, Mail, Phone, Calendar, Link2, Link2Off, ShieldCheck, BarChart3 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -111,6 +111,11 @@ export function InvestorDetail() {
         </div>
         {isAdmin && (
           <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/investors/${investorId}/report`}>
+                <BarChart3 className="h-4 w-4 mr-2" /> View report
+              </Link>
+            </Button>
             <Button variant="outline" onClick={() => setEditOpen(true)}>
               <Edit className="h-4 w-4 mr-2" /> Edit
             </Button>

@@ -477,6 +477,115 @@ paths:
               schema:
                 $ref: "#/components/schemas/ReportsSummary"
 
+  /reports/investors/{investorId}:
+    get:
+      operationId: getInvestorReport
+      tags: [reports]
+      summary: Progress report scoped to a single investor's cattle
+      parameters:
+        - name: investorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Investor progress report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestorReport"
+        "403":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Investor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /reports/investors/{investorId}/share:
+    get:
+      operationId: getInvestorShareLink
+      tags: [reports]
+      summary: Get the current public share link state for an investor report
+      parameters:
+        - name: investorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Share link state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareLink"
+    post:
+      operationId: createInvestorShareLink
+      tags: [reports]
+      summary: Generate (or rotate) a public share link for an investor report
+      parameters:
+        - name: investorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Share link created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareLink"
+    delete:
+      operationId: deleteInvestorShareLink
+      tags: [reports]
+      summary: Revoke the public share link for an investor report
+      parameters:
+        - name: investorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Share link revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareLink"
+
+  /reports/shared/{token}:
+    get:
+      operationId: getSharedReport
+      tags: [reports]
+      summary: Public investor progress report accessed by share token (no auth)
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Investor progress report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestorReport"
+        "404":
+          description: Invalid or revoked share link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -932,3 +1041,80 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/InvestorReportRow"
+
+    AnimalProgress:
+      type: object
+      required: [id, tag, breed, status, weightKg, targetWeightKg, percentToTarget, marketReady, daysToMarket, projectedMarketDate, avgDailyGainKg]
+      properties:
+        id:
+          type: integer
+        tag:
+          type: string
+        breed:
+          type: ["string", "null"]
+        status:
+          type: string
+        weightKg:
+          type: ["number", "null"]
+        targetWeightKg:
+          type: number
+        percentToTarget:
+          type: number
+          description: Current weight as a percentage of the market target (0-100, capped at 100).
+        marketReady:
+          type: boolean
+        daysToMarket:
+          type: ["integer", "null"]
+        projectedMarketDate:
+          type: ["string", "null"]
+        avgDailyGainKg:
+          type: ["number", "null"]
+
+    InvestorReport:
+      type: object
+      required: [investorId, investorName, generatedAt, totalCattle, totalHerdWeightKg, avgWeightKg, marketReadyCount, weightDistribution, marketReadiness, growthTrend, treatmentStats, treatmentTotals, animals]
+      properties:
+        investorId:
+          type: integer
+        investorName:
+          type: string
+        generatedAt:
+          type: string
+        totalCattle:
+          type: integer
+        totalHerdWeightKg:
+          type: number
+        avgWeightKg:
+          type: number
+        marketReadyCount:
+          type: integer
+        weightDistribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeightBucket"
+        marketReadiness:
+          $ref: "#/components/schemas/MarketReadinessReport"
+        growthTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/GrowthTrendPoint"
+        treatmentStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreatmentTypeStat"
+        treatmentTotals:
+          $ref: "#/components/schemas/TreatmentTotals"
+        animals:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnimalProgress"
+
+    ShareLink:
+      type: object
+      required: [enabled, token]
+      properties:
+        enabled:
+          type: boolean
+        token:
+          type: ["string", "null"]
+          description: Opaque share token. Null when no link is active. Frontend builds the full URL.

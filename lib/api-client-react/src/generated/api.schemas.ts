@@ -307,6 +307,51 @@ export interface ReportsSummary {
   investorBreakdown: InvestorReportRow[];
 }
 
+export interface AnimalProgress {
+  id: number;
+  tag: string;
+  /** @nullable */
+  breed: string | null;
+  status: string;
+  /** @nullable */
+  weightKg: number | null;
+  targetWeightKg: number;
+  /** Current weight as a percentage of the market target (0-100, capped at 100). */
+  percentToTarget: number;
+  marketReady: boolean;
+  /** @nullable */
+  daysToMarket: number | null;
+  /** @nullable */
+  projectedMarketDate: string | null;
+  /** @nullable */
+  avgDailyGainKg: number | null;
+}
+
+export interface InvestorReport {
+  investorId: number;
+  investorName: string;
+  generatedAt: string;
+  totalCattle: number;
+  totalHerdWeightKg: number;
+  avgWeightKg: number;
+  marketReadyCount: number;
+  weightDistribution: WeightBucket[];
+  marketReadiness: MarketReadinessReport;
+  growthTrend: GrowthTrendPoint[];
+  treatmentStats: TreatmentTypeStat[];
+  treatmentTotals: TreatmentTotals;
+  animals: AnimalProgress[];
+}
+
+export interface ShareLink {
+  enabled: boolean;
+  /**
+     * Opaque share token. Null when no link is active. Frontend builds the full URL.
+     * @nullable
+     */
+  token: string | null;
+}
+
 export type ListCattleParams = {
 status?: string;
 investorId?: number;

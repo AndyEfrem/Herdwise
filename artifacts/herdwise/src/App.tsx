@@ -14,6 +14,9 @@ import { CattleList } from "@/pages/cattle";
 import { CattleDetail } from "@/pages/cattle-detail";
 import { InvestorsList } from "@/pages/investors";
 import { InvestorDetail } from "@/pages/investor-detail";
+import { InvestorReport } from "@/pages/investor-report";
+import { MyReport } from "@/pages/my-report";
+import { SharedReport } from "@/pages/shared-report";
 import { TreatmentsList } from "@/pages/treatments";
 import { Reports } from "@/pages/reports";
 import { Settings } from "@/pages/settings";
@@ -149,7 +152,9 @@ function ProtectedApp() {
                 <Route path="/cattle" component={CattleList} />
                 <Route path="/cattle/:id" component={CattleDetail} />
                 <Route path="/investors" component={InvestorsList} />
+                <Route path="/investors/:id/report" component={InvestorReport} />
                 <Route path="/investors/:id" component={InvestorDetail} />
+                <Route path="/my-report" component={MyReport} />
                 <Route path="/treatments" component={TreatmentsList} />
                 <Route path="/reports" component={Reports} />
                 <Route path="/settings" component={Settings} />
@@ -200,6 +205,7 @@ function ClerkProviderWithRoutes() {
           <Route path="/" component={HomeRedirect} />
           <Route path="/sign-in/*?" component={SignInPage} />
           <Route path="/sign-up/*?" component={SignUpPage} />
+          <Route path="/shared-report/:token" component={SharedReport} />
           <Route component={ProtectedApp} />
         </Switch>
       </QueryClientProvider>

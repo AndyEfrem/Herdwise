@@ -26,6 +26,7 @@ const adminNavItems = [
 const investorNavItems = [
   { name: "My Cattle", href: "/cattle", icon: Box },
   { name: "Treatments", href: "/treatments", icon: Stethoscope },
+  { name: "My Report", href: "/my-report", icon: BarChart3 },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

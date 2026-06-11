@@ -28,10 +28,12 @@ import type {
   HealthStatus,
   Investor,
   InvestorInput,
+  InvestorReport,
   InvestorUpdate,
   ListCattleParams,
   ListTreatmentsParams,
   ReportsSummary,
+  ShareLink,
   Treatment,
   TreatmentInput,
   TreatmentUpdate,
@@ -1608,6 +1610,377 @@ export function useGetReportsSummary<TData = Awaited<ReturnType<typeof getReport
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetReportsSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetInvestorReportUrl = (investorId: number,) => {
+
+
+
+
+  return `/api/reports/investors/${investorId}`
+}
+
+/**
+ * @summary Progress report scoped to a single investor's cattle
+ */
+export const getInvestorReport = async (investorId: number, options?: RequestInit): Promise<InvestorReport> => {
+
+  return customFetch<InvestorReport>(getGetInvestorReportUrl(investorId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetInvestorReportQueryKey = (investorId: number,) => {
+    return [
+    `/api/reports/investors/${investorId}`
+    ] as const;
+    }
+
+
+export const getGetInvestorReportQueryOptions = <TData = Awaited<ReturnType<typeof getInvestorReport>>, TError = ErrorType<ErrorResponse>>(investorId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInvestorReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetInvestorReportQueryKey(investorId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInvestorReport>>> = ({ signal }) => getInvestorReport(investorId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(investorId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getInvestorReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetInvestorReportQueryResult = NonNullable<Awaited<ReturnType<typeof getInvestorReport>>>
+export type GetInvestorReportQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Progress report scoped to a single investor's cattle
+ */
+
+export function useGetInvestorReport<TData = Awaited<ReturnType<typeof getInvestorReport>>, TError = ErrorType<ErrorResponse>>(
+ investorId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInvestorReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetInvestorReportQueryOptions(investorId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetInvestorShareLinkUrl = (investorId: number,) => {
+
+
+
+
+  return `/api/reports/investors/${investorId}/share`
+}
+
+/**
+ * @summary Get the current public share link state for an investor report
+ */
+export const getInvestorShareLink = async (investorId: number, options?: RequestInit): Promise<ShareLink> => {
+
+  return customFetch<ShareLink>(getGetInvestorShareLinkUrl(investorId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetInvestorShareLinkQueryKey = (investorId: number,) => {
+    return [
+    `/api/reports/investors/${investorId}/share`
+    ] as const;
+    }
+
+
+export const getGetInvestorShareLinkQueryOptions = <TData = Awaited<ReturnType<typeof getInvestorShareLink>>, TError = ErrorType<unknown>>(investorId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInvestorShareLink>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetInvestorShareLinkQueryKey(investorId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInvestorShareLink>>> = ({ signal }) => getInvestorShareLink(investorId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(investorId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getInvestorShareLink>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetInvestorShareLinkQueryResult = NonNullable<Awaited<ReturnType<typeof getInvestorShareLink>>>
+export type GetInvestorShareLinkQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the current public share link state for an investor report
+ */
+
+export function useGetInvestorShareLink<TData = Awaited<ReturnType<typeof getInvestorShareLink>>, TError = ErrorType<unknown>>(
+ investorId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInvestorShareLink>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetInvestorShareLinkQueryOptions(investorId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateInvestorShareLinkUrl = (investorId: number,) => {
+
+
+
+
+  return `/api/reports/investors/${investorId}/share`
+}
+
+/**
+ * @summary Generate (or rotate) a public share link for an investor report
+ */
+export const createInvestorShareLink = async (investorId: number, options?: RequestInit): Promise<ShareLink> => {
+
+  return customFetch<ShareLink>(getCreateInvestorShareLinkUrl(investorId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getCreateInvestorShareLinkMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createInvestorShareLink>>, TError,{investorId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createInvestorShareLink>>, TError,{investorId: number}, TContext> => {
+
+const mutationKey = ['createInvestorShareLink'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createInvestorShareLink>>, {investorId: number}> = (props) => {
+          const {investorId} = props ?? {};
+
+          return  createInvestorShareLink(investorId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateInvestorShareLinkMutationResult = NonNullable<Awaited<ReturnType<typeof createInvestorShareLink>>>
+
+    export type CreateInvestorShareLinkMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Generate (or rotate) a public share link for an investor report
+ */
+export const useCreateInvestorShareLink = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createInvestorShareLink>>, TError,{investorId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createInvestorShareLink>>,
+        TError,
+        {investorId: number},
+        TContext
+      > => {
+      return useMutation(getCreateInvestorShareLinkMutationOptions(options));
+    }
+
+export const getDeleteInvestorShareLinkUrl = (investorId: number,) => {
+
+
+
+
+  return `/api/reports/investors/${investorId}/share`
+}
+
+/**
+ * @summary Revoke the public share link for an investor report
+ */
+export const deleteInvestorShareLink = async (investorId: number, options?: RequestInit): Promise<ShareLink> => {
+
+  return customFetch<ShareLink>(getDeleteInvestorShareLinkUrl(investorId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteInvestorShareLinkMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteInvestorShareLink>>, TError,{investorId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteInvestorShareLink>>, TError,{investorId: number}, TContext> => {
+
+const mutationKey = ['deleteInvestorShareLink'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteInvestorShareLink>>, {investorId: number}> = (props) => {
+          const {investorId} = props ?? {};
+
+          return  deleteInvestorShareLink(investorId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteInvestorShareLinkMutationResult = NonNullable<Awaited<ReturnType<typeof deleteInvestorShareLink>>>
+
+    export type DeleteInvestorShareLinkMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Revoke the public share link for an investor report
+ */
+export const useDeleteInvestorShareLink = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteInvestorShareLink>>, TError,{investorId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteInvestorShareLink>>,
+        TError,
+        {investorId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteInvestorShareLinkMutationOptions(options));
+    }
+
+export const getGetSharedReportUrl = (token: string,) => {
+
+
+
+
+  return `/api/reports/shared/${token}`
+}
+
+/**
+ * @summary Public investor progress report accessed by share token (no auth)
+ */
+export const getSharedReport = async (token: string, options?: RequestInit): Promise<InvestorReport> => {
+
+  return customFetch<InvestorReport>(getGetSharedReportUrl(token),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSharedReportQueryKey = (token: string,) => {
+    return [
+    `/api/reports/shared/${token}`
+    ] as const;
+    }
+
+
+export const getGetSharedReportQueryOptions = <TData = Awaited<ReturnType<typeof getSharedReport>>, TError = ErrorType<ErrorResponse>>(token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSharedReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSharedReportQueryKey(token);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSharedReport>>> = ({ signal }) => getSharedReport(token, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(token), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSharedReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSharedReportQueryResult = NonNullable<Awaited<ReturnType<typeof getSharedReport>>>
+export type GetSharedReportQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Public investor progress report accessed by share token (no auth)
+ */
+
+export function useGetSharedReport<TData = Awaited<ReturnType<typeof getSharedReport>>, TError = ErrorType<ErrorResponse>>(
+ token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSharedReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSharedReportQueryOptions(token,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

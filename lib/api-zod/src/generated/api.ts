@@ -466,3 +466,160 @@ export const GetReportsSummaryResponse = zod.object({
 })
 
 
+/**
+ * @summary Progress report scoped to a single investor's cattle
+ */
+export const GetInvestorReportParams = zod.object({
+  "investorId": zod.coerce.number()
+})
+
+export const GetInvestorReportResponse = zod.object({
+  "investorId": zod.number(),
+  "investorName": zod.string(),
+  "generatedAt": zod.string(),
+  "totalCattle": zod.number(),
+  "totalHerdWeightKg": zod.number(),
+  "avgWeightKg": zod.number(),
+  "marketReadyCount": zod.number(),
+  "weightDistribution": zod.array(zod.object({
+  "range": zod.string(),
+  "count": zod.number()
+})),
+  "marketReadiness": zod.object({
+  "ready": zod.number(),
+  "within30": zod.number(),
+  "within60": zod.number(),
+  "within90": zod.number(),
+  "beyond90": zod.number(),
+  "notProjectable": zod.number()
+}),
+  "growthTrend": zod.array(zod.object({
+  "month": zod.string(),
+  "avgWeightKg": zod.number(),
+  "recordCount": zod.number()
+})),
+  "treatmentStats": zod.array(zod.object({
+  "treatmentType": zod.string(),
+  "total": zod.number(),
+  "completed": zod.number(),
+  "pending": zod.number()
+})),
+  "treatmentTotals": zod.object({
+  "total": zod.number(),
+  "completed": zod.number(),
+  "pending": zod.number()
+}),
+  "animals": zod.array(zod.object({
+  "id": zod.number(),
+  "tag": zod.string(),
+  "breed": zod.string().nullable(),
+  "status": zod.string(),
+  "weightKg": zod.number().nullable(),
+  "targetWeightKg": zod.number(),
+  "percentToTarget": zod.number().describe('Current weight as a percentage of the market target (0-100, capped at 100).'),
+  "marketReady": zod.boolean(),
+  "daysToMarket": zod.number().nullable(),
+  "projectedMarketDate": zod.string().nullable(),
+  "avgDailyGainKg": zod.number().nullable()
+}))
+})
+
+
+/**
+ * @summary Get the current public share link state for an investor report
+ */
+export const GetInvestorShareLinkParams = zod.object({
+  "investorId": zod.coerce.number()
+})
+
+export const GetInvestorShareLinkResponse = zod.object({
+  "enabled": zod.boolean(),
+  "token": zod.string().nullable().describe('Opaque share token. Null when no link is active. Frontend builds the full URL.')
+})
+
+
+/**
+ * @summary Generate (or rotate) a public share link for an investor report
+ */
+export const CreateInvestorShareLinkParams = zod.object({
+  "investorId": zod.coerce.number()
+})
+
+export const CreateInvestorShareLinkResponse = zod.object({
+  "enabled": zod.boolean(),
+  "token": zod.string().nullable().describe('Opaque share token. Null when no link is active. Frontend builds the full URL.')
+})
+
+
+/**
+ * @summary Revoke the public share link for an investor report
+ */
+export const DeleteInvestorShareLinkParams = zod.object({
+  "investorId": zod.coerce.number()
+})
+
+export const DeleteInvestorShareLinkResponse = zod.object({
+  "enabled": zod.boolean(),
+  "token": zod.string().nullable().describe('Opaque share token. Null when no link is active. Frontend builds the full URL.')
+})
+
+
+/**
+ * @summary Public investor progress report accessed by share token (no auth)
+ */
+export const GetSharedReportParams = zod.object({
+  "token": zod.coerce.string()
+})
+
+export const GetSharedReportResponse = zod.object({
+  "investorId": zod.number(),
+  "investorName": zod.string(),
+  "generatedAt": zod.string(),
+  "totalCattle": zod.number(),
+  "totalHerdWeightKg": zod.number(),
+  "avgWeightKg": zod.number(),
+  "marketReadyCount": zod.number(),
+  "weightDistribution": zod.array(zod.object({
+  "range": zod.string(),
+  "count": zod.number()
+})),
+  "marketReadiness": zod.object({
+  "ready": zod.number(),
+  "within30": zod.number(),
+  "within60": zod.number(),
+  "within90": zod.number(),
+  "beyond90": zod.number(),
+  "notProjectable": zod.number()
+}),
+  "growthTrend": zod.array(zod.object({
+  "month": zod.string(),
+  "avgWeightKg": zod.number(),
+  "recordCount": zod.number()
+})),
+  "treatmentStats": zod.array(zod.object({
+  "treatmentType": zod.string(),
+  "total": zod.number(),
+  "completed": zod.number(),
+  "pending": zod.number()
+})),
+  "treatmentTotals": zod.object({
+  "total": zod.number(),
+  "completed": zod.number(),
+  "pending": zod.number()
+}),
+  "animals": zod.array(zod.object({
+  "id": zod.number(),
+  "tag": zod.string(),
+  "breed": zod.string().nullable(),
+  "status": zod.string(),
+  "weightKg": zod.number().nullable(),
+  "targetWeightKg": zod.number(),
+  "percentToTarget": zod.number().describe('Current weight as a percentage of the market target (0-100, capped at 100).'),
+  "marketReady": zod.boolean(),
+  "daysToMarket": zod.number().nullable(),
+  "projectedMarketDate": zod.string().nullable(),
+  "avgDailyGainKg": zod.number().nullable()
+}))
+})
+
+
