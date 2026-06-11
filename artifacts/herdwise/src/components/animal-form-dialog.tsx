@@ -91,7 +91,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
           breed: animal.breed,
           status: animal.status,
           weightKg: animal.weightKg != null ? String(animal.weightKg) : "",
-          investorId: animal.investorId != null ? String(animal.investorId) : "",
+          investorId: animal.investorId != null ? String(animal.investorId) : "none",
           notes: animal.notes ?? "",
         });
       } else {
@@ -100,7 +100,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
           breed: "",
           status: "active",
           weightKg: "",
-          investorId: "",
+          investorId: "none",
           notes: "",
         });
       }
@@ -142,7 +142,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
       breed: values.breed,
       status: values.status,
       weightKg: values.weightKg ? parseFloat(values.weightKg) : null,
-      investorId: values.investorId ? parseInt(values.investorId, 10) : null,
+      investorId: values.investorId && values.investorId !== "none" ? parseInt(values.investorId, 10) : null,
       notes: values.notes || null,
     };
 
@@ -248,7 +248,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None (unassigned)</SelectItem>
                       {investors?.map((inv) => (
                         <SelectItem key={inv.id} value={String(inv.id)}>
                           {inv.name}
