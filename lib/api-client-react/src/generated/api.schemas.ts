@@ -121,6 +121,28 @@ export interface TreatmentUpdate {
   notes?: string | null;
 }
 
+export interface WeightRecord {
+  id: number;
+  cattleId: number;
+  weightKg: number;
+  recordedAt: string;
+  /** @nullable */
+  notes?: string | null;
+  /** @nullable */
+  recordedBy?: string | null;
+  createdAt: string;
+}
+
+export interface WeightRecordInput {
+  /** @minimum 0 */
+  weightKg: number;
+  recordedAt: string;
+  /** @nullable */
+  notes?: string | null;
+  /** @nullable */
+  recordedBy?: string | null;
+}
+
 export interface HerdStatusBreakdown {
   status: string;
   count: number;

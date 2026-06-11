@@ -272,6 +272,53 @@ export const DeleteTreatmentParams = zod.object({
 
 
 /**
+ * @summary List weight history for an animal
+ */
+export const ListWeightRecordsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListWeightRecordsResponseItem = zod.object({
+  "id": zod.number(),
+  "cattleId": zod.number(),
+  "weightKg": zod.number(),
+  "recordedAt": zod.string(),
+  "notes": zod.string().nullish(),
+  "recordedBy": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListWeightRecordsResponse = zod.array(ListWeightRecordsResponseItem)
+
+
+/**
+ * @summary Add a weight record
+ */
+export const AddWeightRecordParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const addWeightRecordBodyWeightKgMin = 0;
+
+
+
+export const AddWeightRecordBody = zod.object({
+  "weightKg": zod.number().min(addWeightRecordBodyWeightKgMin),
+  "recordedAt": zod.string(),
+  "notes": zod.string().nullish(),
+  "recordedBy": zod.string().nullish()
+})
+
+
+/**
+ * @summary Delete a weight record
+ */
+export const DeleteWeightRecordParams = zod.object({
+  "id": zod.coerce.number(),
+  "weightId": zod.coerce.number()
+})
+
+
+/**
  * @summary Dashboard summary stats
  */
 export const GetDashboardSummaryResponse = zod.object({

@@ -33,7 +33,9 @@ import type {
   ListTreatmentsParams,
   Treatment,
   TreatmentInput,
-  TreatmentUpdate
+  TreatmentUpdate,
+  WeightRecord,
+  WeightRecordInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1162,6 +1164,227 @@ export const useDeleteTreatment = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getDeleteTreatmentMutationOptions(options));
+    }
+
+export const getListWeightRecordsUrl = (id: number,) => {
+
+
+
+
+  return `/api/cattle/${id}/weights`
+}
+
+/**
+ * @summary List weight history for an animal
+ */
+export const listWeightRecords = async (id: number, options?: RequestInit): Promise<WeightRecord[]> => {
+
+  return customFetch<WeightRecord[]>(getListWeightRecordsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListWeightRecordsQueryKey = (id: number,) => {
+    return [
+    `/api/cattle/${id}/weights`
+    ] as const;
+    }
+
+
+export const getListWeightRecordsQueryOptions = <TData = Awaited<ReturnType<typeof listWeightRecords>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWeightRecords>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListWeightRecordsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listWeightRecords>>> = ({ signal }) => listWeightRecords(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listWeightRecords>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListWeightRecordsQueryResult = NonNullable<Awaited<ReturnType<typeof listWeightRecords>>>
+export type ListWeightRecordsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List weight history for an animal
+ */
+
+export function useListWeightRecords<TData = Awaited<ReturnType<typeof listWeightRecords>>, TError = ErrorType<ErrorResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWeightRecords>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListWeightRecordsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAddWeightRecordUrl = (id: number,) => {
+
+
+
+
+  return `/api/cattle/${id}/weights`
+}
+
+/**
+ * @summary Add a weight record
+ */
+export const addWeightRecord = async (id: number,
+    weightRecordInput: WeightRecordInput, options?: RequestInit): Promise<WeightRecord> => {
+
+  return customFetch<WeightRecord>(getAddWeightRecordUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      weightRecordInput,)
+  }
+);}
+
+
+
+
+export const getAddWeightRecordMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addWeightRecord>>, TError,{id: number;data: BodyType<WeightRecordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addWeightRecord>>, TError,{id: number;data: BodyType<WeightRecordInput>}, TContext> => {
+
+const mutationKey = ['addWeightRecord'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addWeightRecord>>, {id: number;data: BodyType<WeightRecordInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  addWeightRecord(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddWeightRecordMutationResult = NonNullable<Awaited<ReturnType<typeof addWeightRecord>>>
+    export type AddWeightRecordMutationBody = BodyType<WeightRecordInput>
+    export type AddWeightRecordMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Add a weight record
+ */
+export const useAddWeightRecord = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addWeightRecord>>, TError,{id: number;data: BodyType<WeightRecordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addWeightRecord>>,
+        TError,
+        {id: number;data: BodyType<WeightRecordInput>},
+        TContext
+      > => {
+      return useMutation(getAddWeightRecordMutationOptions(options));
+    }
+
+export const getDeleteWeightRecordUrl = (id: number,
+    weightId: number,) => {
+
+
+
+
+  return `/api/cattle/${id}/weights/${weightId}`
+}
+
+/**
+ * @summary Delete a weight record
+ */
+export const deleteWeightRecord = async (id: number,
+    weightId: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteWeightRecordUrl(id,weightId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteWeightRecordMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteWeightRecord>>, TError,{id: number;weightId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteWeightRecord>>, TError,{id: number;weightId: number}, TContext> => {
+
+const mutationKey = ['deleteWeightRecord'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteWeightRecord>>, {id: number;weightId: number}> = (props) => {
+          const {id,weightId} = props ?? {};
+
+          return  deleteWeightRecord(id,weightId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteWeightRecordMutationResult = NonNullable<Awaited<ReturnType<typeof deleteWeightRecord>>>
+
+    export type DeleteWeightRecordMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a weight record
+ */
+export const useDeleteWeightRecord = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteWeightRecord>>, TError,{id: number;weightId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteWeightRecord>>,
+        TError,
+        {id: number;weightId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteWeightRecordMutationOptions(options));
     }
 
 export const getGetDashboardSummaryUrl = () => {

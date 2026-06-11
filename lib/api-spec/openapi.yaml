@@ -346,6 +346,88 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /cattle/{id}/weights:
+    get:
+      operationId: listWeightRecords
+      tags: [cattle]
+      summary: List weight history for an animal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of weight records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeightRecord"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: addWeightRecord
+      tags: [cattle]
+      summary: Add a weight record
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeightRecordInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeightRecord"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cattle/{id}/weights/{weightId}:
+    delete:
+      operationId: deleteWeightRecord
+      tags: [cattle]
+      summary: Delete a weight record
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: weightId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /dashboard/summary:
     get:
       operationId: getDashboardSummary
@@ -527,6 +609,39 @@ components:
         completedAt:
           type: ["string", "null"]
         notes:
+          type: ["string", "null"]
+
+    WeightRecord:
+      type: object
+      required: [id, cattleId, weightKg, recordedAt, createdAt]
+      properties:
+        id:
+          type: integer
+        cattleId:
+          type: integer
+        weightKg:
+          type: number
+        recordedAt:
+          type: string
+        notes:
+          type: ["string", "null"]
+        recordedBy:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    WeightRecordInput:
+      type: object
+      required: [weightKg, recordedAt]
+      properties:
+        weightKg:
+          type: number
+          minimum: 0
+        recordedAt:
+          type: string
+        notes:
+          type: ["string", "null"]
+        recordedBy:
           type: ["string", "null"]
 
     HerdStatusBreakdown:

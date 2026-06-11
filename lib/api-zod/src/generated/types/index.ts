@@ -22,3 +22,5 @@ export * from './treatment';
 export * from './treatmentInput';
 export * from './treatmentUpdate';
 export * from './upcomingCareItem';
+export * from './weightRecord';
+export * from './weightRecordInput';
