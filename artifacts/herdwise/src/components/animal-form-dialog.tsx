@@ -43,9 +43,10 @@ const formSchema = z.object({
   dateReceived: z.string().optional(),
   investorId: z.string().optional(),
   notes: z.string().optional(),
-  arrivalDipping: z.boolean().default(false),
+  arrival3in1: z.boolean().default(false),
   arrivalDosing: z.boolean().default(false),
-  arrivalBloodTest: z.boolean().default(false),
+  arrivalDipping: z.boolean().default(false),
+  arrivalIsd: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -86,7 +87,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
       tag: "", previousTag: "", lotNumber: "", breed: "", sex: "none", stage: "none",
       description: "", status: "active", weightKg: "", dateReceived: today,
       investorId: "none", notes: "",
-      arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
+      arrival3in1: false, arrivalDosing: false, arrivalDipping: false, arrivalIsd: false,
     },
   });
 
@@ -94,8 +95,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
     if (open) {
       if (animal) {
         form.reset({
-          tag: animal.tag,
-          previousTag: animal.previousTag ?? "",
+          tag: animal.tag, previousTag: animal.previousTag ?? "",
           lotNumber: animal.lotNumber ?? "",
           breed: animal.breed,
           sex: animal.sex ?? "none",
@@ -106,14 +106,14 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
           dateReceived: animal.dateReceived ?? today,
           investorId: animal.investorId != null ? String(animal.investorId) : "none",
           notes: animal.notes ?? "",
-          arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
+          arrival3in1: false, arrivalDosing: false, arrivalDipping: false, arrivalIsd: false,
         });
       } else {
         form.reset({
           tag: "", previousTag: "", lotNumber: "", breed: "", sex: "none", stage: "none",
           description: "", status: "active", weightKg: "", dateReceived: today,
           investorId: "none", notes: "",
-          arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
+          arrival3in1: false, arrivalDosing: false, arrivalDipping: false, arrivalIsd: false,
         });
       }
     }
@@ -126,14 +126,17 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
       onSuccess: async (created) => {
         const arrivalDate = form.getValues("dateReceived") || today;
         const tasks: Promise<unknown>[] = [];
-        if (form.getValues("arrivalDipping")) {
-          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Dipping", scheduledDate: arrivalDate, notes: "Arrival dipping" } }));
+        if (form.getValues("arrival3in1")) {
+          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "3in1", scheduledDate: arrivalDate, notes: "Arrival 3in1 vaccination" } }));
         }
         if (form.getValues("arrivalDosing")) {
-          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Deworming", scheduledDate: arrivalDate, notes: "Arrival dosing/deworming" } }));
+          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Dose", scheduledDate: arrivalDate, notes: "Arrival dose" } }));
         }
-        if (form.getValues("arrivalBloodTest")) {
-          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Blood Test", scheduledDate: arrivalDate, notes: "Arrival blood test (BD)" } }));
+        if (form.getValues("arrivalDipping")) {
+          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Dip", scheduledDate: arrivalDate, notes: "Arrival dipping" } }));
+        }
+        if (form.getValues("arrivalIsd")) {
+          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Isd", scheduledDate: arrivalDate, notes: "Arrival Isd" } }));
         }
         await Promise.allSettled(tasks);
         toast({ title: "Animal registered", description: "New stock entry saved successfully." });
@@ -348,29 +351,29 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
                 <Separator />
                 <div>
                   <p className="text-sm font-medium mb-3">Arrival Treatments</p>
-                  <div className="grid grid-cols-3 gap-3">
-                    <FormField control={form.control} name="arrivalDipping" render={({ field }) => (
+                  <div className="grid grid-cols-4 gap-3">
+                    <FormField control={form.control} name="arrival3in1" render={({ field }) => (
                       <FormItem className="flex items-center gap-2 space-y-0 border rounded-md p-3">
-                        <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer">Dipping</FormLabel>
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="font-normal cursor-pointer">3in1</FormLabel>
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="arrivalDosing" render={({ field }) => (
                       <FormItem className="flex items-center gap-2 space-y-0 border rounded-md p-3">
-                        <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer">Dosing</FormLabel>
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="font-normal cursor-pointer">Dose</FormLabel>
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="arrivalBloodTest" render={({ field }) => (
+                    <FormField control={form.control} name="arrivalDipping" render={({ field }) => (
                       <FormItem className="flex items-center gap-2 space-y-0 border rounded-md p-3">
-                        <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer">Blood Test (BD)</FormLabel>
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="font-normal cursor-pointer">Dip</FormLabel>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="arrivalIsd" render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 space-y-0 border rounded-md p-3">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormLabel className="font-normal cursor-pointer">Isd</FormLabel>
                       </FormItem>
                     )} />
                   </div>

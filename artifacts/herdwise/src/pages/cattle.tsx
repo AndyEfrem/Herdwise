@@ -21,6 +21,7 @@ import { format, parseISO } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { AnimalFormDialog } from "@/components/animal-form-dialog";
+import { CattleDetailSheet } from "@/components/cattle-detail-sheet";
 import { useUserRole } from "@/hooks/use-user-role";
 
 type Animal = {
@@ -54,6 +55,7 @@ export function CattleList() {
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [editAnimal, setEditAnimal] = useState<Animal | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const { data: cattle, isLoading } = useListCattle();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -133,9 +135,12 @@ export function CattleList() {
               filteredCattle.map((animal) => (
                 <TableRow key={animal.id} data-testid={`row-cattle-${animal.id}`} className="group">
                   <TableCell className="font-medium">
-                    <Link href={`/cattle/${animal.id}`} className="hover:text-primary transition-colors">
+                    <button
+                      onClick={() => setSelectedId(animal.id)}
+                      className="hover:text-primary transition-colors underline-offset-2 hover:underline text-left"
+                    >
                       {animal.tag}
-                    </Link>
+                    </button>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{animal.previousTag || "—"}</TableCell>
                   <TableCell className="text-sm font-medium">{animal.lotNumber ? <Badge variant="outline" className="font-mono text-xs">Lot {animal.lotNumber}</Badge> : <span className="text-muted-foreground text-xs">Private</span>}</TableCell>
@@ -202,6 +207,7 @@ export function CattleList() {
         onOpenChange={(open) => { if (!open) setEditAnimal(null); }}
         animal={editAnimal}
       />
+      <CattleDetailSheet animalId={selectedId} onClose={() => setSelectedId(null)} />
     </div>
   );
 }

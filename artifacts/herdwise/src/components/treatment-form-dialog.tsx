@@ -36,9 +36,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const TREATMENT_TYPES = [
+  "3in1",
+  "Dose",
+  "Dip",
+  "Isd",
   "FMD Vaccination",
-  "Deworming",
-  "Dipping",
   "Antibiotic Treatment",
   "Vitamin Supplement",
   "Hoof Trimming",
