@@ -1,0 +1,180 @@
+import { Router, type IRouter } from "express";
+import { eq, ilike, and, type SQL } from "drizzle-orm";
+import { db, cattleTable, investorsTable } from "@workspace/db";
+import {
+  ListCattleQueryParams,
+  CreateAnimalBody,
+  GetAnimalParams,
+  GetAnimalResponse,
+  UpdateAnimalParams,
+  UpdateAnimalBody,
+  DeleteAnimalParams,
+} from "@workspace/api-zod";
+
+const router: IRouter = Router();
+
+router.get("/cattle", async (req, res): Promise<void> => {
+  const query = ListCattleQueryParams.safeParse(req.query);
+  if (!query.success) {
+    res.status(400).json({ error: query.error.message });
+    return;
+  }
+
+  const { status, investorId, search } = query.data;
+  const conditions: SQL[] = [];
+
+  if (status) conditions.push(eq(cattleTable.status, status));
+  if (investorId) conditions.push(eq(cattleTable.investorId, investorId));
+  if (search) conditions.push(ilike(cattleTable.tag, `%${search}%`));
+
+  const rows = await db
+    .select({
+      id: cattleTable.id,
+      tag: cattleTable.tag,
+      breed: cattleTable.breed,
+      status: cattleTable.status,
+      weightKg: cattleTable.weightKg,
+      notes: cattleTable.notes,
+      investorId: cattleTable.investorId,
+      investorName: investorsTable.name,
+      createdAt: cattleTable.createdAt,
+    })
+    .from(cattleTable)
+    .leftJoin(investorsTable, eq(cattleTable.investorId, investorsTable.id))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(cattleTable.createdAt);
+
+  res.json(rows.map((r) => ({
+    ...r,
+    weightKg: r.weightKg ?? null,
+    notes: r.notes ?? null,
+    investorId: r.investorId ?? null,
+    investorName: r.investorName ?? null,
+    createdAt: r.createdAt.toISOString(),
+  })));
+});
+
+router.post("/cattle", async (req, res): Promise<void> => {
+  const parsed = CreateAnimalBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const [animal] = await db.insert(cattleTable).values(parsed.data).returning();
+
+  let investorName: string | null = null;
+  if (animal.investorId) {
+    const [inv] = await db.select().from(investorsTable).where(eq(investorsTable.id, animal.investorId));
+    investorName = inv?.name ?? null;
+  }
+
+  res.status(201).json({
+    ...animal,
+    weightKg: animal.weightKg ?? null,
+    notes: animal.notes ?? null,
+    investorId: animal.investorId ?? null,
+    investorName,
+    createdAt: animal.createdAt.toISOString(),
+  });
+});
+
+router.get("/cattle/:id", async (req, res): Promise<void> => {
+  const params = GetAnimalParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [row] = await db
+    .select({
+      id: cattleTable.id,
+      tag: cattleTable.tag,
+      breed: cattleTable.breed,
+      status: cattleTable.status,
+      weightKg: cattleTable.weightKg,
+      notes: cattleTable.notes,
+      investorId: cattleTable.investorId,
+      investorName: investorsTable.name,
+      createdAt: cattleTable.createdAt,
+    })
+    .from(cattleTable)
+    .leftJoin(investorsTable, eq(cattleTable.investorId, investorsTable.id))
+    .where(eq(cattleTable.id, params.data.id));
+
+  if (!row) {
+    res.status(404).json({ error: "Animal not found" });
+    return;
+  }
+
+  res.json(GetAnimalResponse.parse({
+    ...row,
+    weightKg: row.weightKg ?? null,
+    notes: row.notes ?? null,
+    investorId: row.investorId ?? null,
+    investorName: row.investorName ?? null,
+    createdAt: row.createdAt.toISOString(),
+  }));
+});
+
+router.patch("/cattle/:id", async (req, res): Promise<void> => {
+  const params = UpdateAnimalParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const parsed = UpdateAnimalBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const [animal] = await db
+    .update(cattleTable)
+    .set(parsed.data)
+    .where(eq(cattleTable.id, params.data.id))
+    .returning();
+
+  if (!animal) {
+    res.status(404).json({ error: "Animal not found" });
+    return;
+  }
+
+  let investorName: string | null = null;
+  if (animal.investorId) {
+    const [inv] = await db.select().from(investorsTable).where(eq(investorsTable.id, animal.investorId));
+    investorName = inv?.name ?? null;
+  }
+
+  res.json({
+    ...animal,
+    weightKg: animal.weightKg ?? null,
+    notes: animal.notes ?? null,
+    investorId: animal.investorId ?? null,
+    investorName,
+    createdAt: animal.createdAt.toISOString(),
+  });
+});
+
+router.delete("/cattle/:id", async (req, res): Promise<void> => {
+  const params = DeleteAnimalParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [animal] = await db
+    .delete(cattleTable)
+    .where(eq(cattleTable.id, params.data.id))
+    .returning();
+
+  if (!animal) {
+    res.status(404).json({ error: "Animal not found" });
+    return;
+  }
+
+  res.sendStatus(204);
+});
+
+export default router;

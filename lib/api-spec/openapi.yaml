@@ -1,15 +1,22 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Herdwise API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: cattle
+    description: Cattle management
+  - name: investors
+    description: Investor management
+  - name: treatments
+    description: Treatment records
+  - name: dashboard
+    description: Dashboard summaries
 paths:
   /healthz:
     get:
@@ -24,6 +31,334 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /cattle:
+    get:
+      operationId: listCattle
+      tags: [cattle]
+      summary: List all cattle
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: investorId
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of cattle
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Animal"
+    post:
+      operationId: createAnimal
+      tags: [cattle]
+      summary: Add a new animal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnimalInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Animal"
+
+  /cattle/{id}:
+    get:
+      operationId: getAnimal
+      tags: [cattle]
+      summary: Get animal by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Animal details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Animal"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateAnimal
+      tags: [cattle]
+      summary: Update animal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnimalUpdate"
+      responses:
+        "200":
+          description: Updated animal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Animal"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteAnimal
+      tags: [cattle]
+      summary: Delete animal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /investors:
+    get:
+      operationId: listInvestors
+      tags: [investors]
+      summary: List all investors
+      responses:
+        "200":
+          description: List of investors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Investor"
+    post:
+      operationId: createInvestor
+      tags: [investors]
+      summary: Create investor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvestorInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Investor"
+
+  /investors/{id}:
+    get:
+      operationId: getInvestor
+      tags: [investors]
+      summary: Get investor by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Investor details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Investor"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateInvestor
+      tags: [investors]
+      summary: Update investor
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvestorUpdate"
+      responses:
+        "200":
+          description: Updated investor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Investor"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteInvestor
+      tags: [investors]
+      summary: Delete investor
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /treatments:
+    get:
+      operationId: listTreatments
+      tags: [treatments]
+      summary: List treatments
+      parameters:
+        - in: query
+          name: cattleId
+          schema:
+            type: integer
+        - in: query
+          name: upcoming
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of treatments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Treatment"
+    post:
+      operationId: createTreatment
+      tags: [treatments]
+      summary: Record a treatment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TreatmentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Treatment"
+
+  /treatments/{id}:
+    patch:
+      operationId: updateTreatment
+      tags: [treatments]
+      summary: Update treatment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TreatmentUpdate"
+      responses:
+        "200":
+          description: Updated treatment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Treatment"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteTreatment
+      tags: [treatments]
+      summary: Delete treatment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +369,211 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Animal:
+      type: object
+      required: [id, tag, breed, status, weightKg, createdAt]
+      properties:
+        id:
+          type: integer
+        tag:
+          type: string
+        breed:
+          type: string
+        status:
+          type: string
+        weightKg:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        investorId:
+          type: ["integer", "null"]
+        investorName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AnimalInput:
+      type: object
+      required: [tag, breed, status]
+      properties:
+        tag:
+          type: string
+          minLength: 1
+        breed:
+          type: string
+          minLength: 1
+        status:
+          type: string
+        weightKg:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        investorId:
+          type: ["integer", "null"]
+
+    AnimalUpdate:
+      type: object
+      properties:
+        tag:
+          type: string
+          minLength: 1
+        breed:
+          type: string
+          minLength: 1
+        status:
+          type: string
+        weightKg:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        investorId:
+          type: ["integer", "null"]
+
+    Investor:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        cattleCount:
+          type: integer
+        createdAt:
+          type: string
+
+    InvestorInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+
+    InvestorUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+
+    Treatment:
+      type: object
+      required: [id, cattleId, treatmentType, scheduledDate, completed, createdAt]
+      properties:
+        id:
+          type: integer
+        cattleId:
+          type: integer
+        cattleTag:
+          type: ["string", "null"]
+        treatmentType:
+          type: string
+        scheduledDate:
+          type: string
+        completedAt:
+          type: ["string", "null"]
+        completed:
+          type: boolean
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    TreatmentInput:
+      type: object
+      required: [cattleId, treatmentType, scheduledDate]
+      properties:
+        cattleId:
+          type: integer
+        treatmentType:
+          type: string
+          minLength: 1
+        scheduledDate:
+          type: string
+        notes:
+          type: ["string", "null"]
+
+    TreatmentUpdate:
+      type: object
+      properties:
+        treatmentType:
+          type: string
+          minLength: 1
+        scheduledDate:
+          type: string
+        completed:
+          type: boolean
+        completedAt:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    HerdStatusBreakdown:
+      type: object
+      required: [status, count, percentage]
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
+
+    UpcomingCareItem:
+      type: object
+      required: [id, cattleTag, treatmentType, scheduledDate]
+      properties:
+        id:
+          type: integer
+        cattleTag:
+          type: string
+        treatmentType:
+          type: string
+        scheduledDate:
+          type: string
+
+    DashboardSummary:
+      type: object
+      required: [totalCattle, activeCattle, activeInvestors, averageWeightKg, animalsWeighed, vaccinationsDue, herdBreakdown, upcomingCare]
+      properties:
+        totalCattle:
+          type: integer
+        activeCattle:
+          type: integer
+        activeInvestors:
+          type: integer
+        averageWeightKg:
+          type: number
+        animalsWeighed:
+          type: integer
+        vaccinationsDue:
+          type: integer
+        herdBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/HerdStatusBreakdown"
+        upcomingCare:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingCareItem"
