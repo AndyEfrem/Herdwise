@@ -9,11 +9,21 @@
 export interface AnimalUpdate {
   /** @minLength 1 */
   tag?: string;
+  /** @nullable */
+  previousTag?: string | null;
   /** @minLength 1 */
   breed?: string;
+  /** @nullable */
+  sex?: string | null;
+  /** @nullable */
+  stage?: string | null;
+  /** @nullable */
+  description?: string | null;
   status?: string;
   /** @nullable */
   weightKg?: number | null;
+  /** @nullable */
+  dateReceived?: string | null;
   /** @nullable */
   notes?: string | null;
   /** @nullable */

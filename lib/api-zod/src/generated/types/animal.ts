@@ -9,10 +9,20 @@
 export interface Animal {
   id: number;
   tag: string;
+  /** @nullable */
+  previousTag?: string | null;
   breed: string;
+  /** @nullable */
+  sex?: string | null;
+  /** @nullable */
+  stage?: string | null;
+  /** @nullable */
+  description?: string | null;
   status: string;
   /** @nullable */
   weightKg: number | null;
+  /** @nullable */
+  dateReceived?: string | null;
   /** @nullable */
   notes?: string | null;
   /** @nullable */

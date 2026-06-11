@@ -16,10 +16,20 @@ export interface ErrorResponse {
 export interface Animal {
   id: number;
   tag: string;
+  /** @nullable */
+  previousTag?: string | null;
   breed: string;
+  /** @nullable */
+  sex?: string | null;
+  /** @nullable */
+  stage?: string | null;
+  /** @nullable */
+  description?: string | null;
   status: string;
   /** @nullable */
   weightKg: number | null;
+  /** @nullable */
+  dateReceived?: string | null;
   /** @nullable */
   notes?: string | null;
   /** @nullable */
@@ -32,11 +42,21 @@ export interface Animal {
 export interface AnimalInput {
   /** @minLength 1 */
   tag: string;
+  /** @nullable */
+  previousTag?: string | null;
   /** @minLength 1 */
   breed: string;
+  /** @nullable */
+  sex?: string | null;
+  /** @nullable */
+  stage?: string | null;
+  /** @nullable */
+  description?: string | null;
   status: string;
   /** @nullable */
   weightKg?: number | null;
+  /** @nullable */
+  dateReceived?: string | null;
   /** @nullable */
   notes?: string | null;
   /** @nullable */
@@ -46,11 +66,21 @@ export interface AnimalInput {
 export interface AnimalUpdate {
   /** @minLength 1 */
   tag?: string;
+  /** @nullable */
+  previousTag?: string | null;
   /** @minLength 1 */
   breed?: string;
+  /** @nullable */
+  sex?: string | null;
+  /** @nullable */
+  stage?: string | null;
+  /** @nullable */
+  description?: string | null;
   status?: string;
   /** @nullable */
   weightKg?: number | null;
+  /** @nullable */
+  dateReceived?: string | null;
   /** @nullable */
   notes?: string | null;
   /** @nullable */

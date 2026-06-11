@@ -40,9 +40,14 @@ export const ListCattleQueryParams = zod.object({
 export const ListCattleResponseItem = zod.object({
   "id": zod.number(),
   "tag": zod.string(),
+  "previousTag": zod.string().nullish(),
   "breed": zod.string(),
+  "sex": zod.string().nullish(),
+  "stage": zod.string().nullish(),
+  "description": zod.string().nullish(),
   "status": zod.string(),
   "weightKg": zod.number().nullable(),
+  "dateReceived": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish(),
   "investorName": zod.string().nullish(),
@@ -60,9 +65,14 @@ export const ListCattleResponse = zod.array(ListCattleResponseItem)
 
 export const CreateAnimalBody = zod.object({
   "tag": zod.string().min(1),
+  "previousTag": zod.string().nullish(),
   "breed": zod.string().min(1),
+  "sex": zod.string().nullish(),
+  "stage": zod.string().nullish(),
+  "description": zod.string().nullish(),
   "status": zod.string(),
   "weightKg": zod.number().nullish(),
+  "dateReceived": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish()
 })
@@ -78,9 +88,14 @@ export const GetAnimalParams = zod.object({
 export const GetAnimalResponse = zod.object({
   "id": zod.number(),
   "tag": zod.string(),
+  "previousTag": zod.string().nullish(),
   "breed": zod.string(),
+  "sex": zod.string().nullish(),
+  "stage": zod.string().nullish(),
+  "description": zod.string().nullish(),
   "status": zod.string(),
   "weightKg": zod.number().nullable(),
+  "dateReceived": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish(),
   "investorName": zod.string().nullish(),
@@ -101,9 +116,14 @@ export const UpdateAnimalParams = zod.object({
 
 export const UpdateAnimalBody = zod.object({
   "tag": zod.string().min(1).optional(),
+  "previousTag": zod.string().nullish(),
   "breed": zod.string().min(1).optional(),
+  "sex": zod.string().nullish(),
+  "stage": zod.string().nullish(),
+  "description": zod.string().nullish(),
   "status": zod.string().optional(),
   "weightKg": zod.number().nullish(),
+  "dateReceived": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish()
 })
@@ -111,9 +131,14 @@ export const UpdateAnimalBody = zod.object({
 export const UpdateAnimalResponse = zod.object({
   "id": zod.number(),
   "tag": zod.string(),
+  "previousTag": zod.string().nullish(),
   "breed": zod.string(),
+  "sex": zod.string().nullish(),
+  "stage": zod.string().nullish(),
+  "description": zod.string().nullish(),
   "status": zod.string(),
   "weightKg": zod.number().nullable(),
+  "dateReceived": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish(),
   "investorName": zod.string().nullish(),

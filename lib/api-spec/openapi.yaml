@@ -488,12 +488,22 @@ components:
           type: integer
         tag:
           type: string
+        previousTag:
+          type: ["string", "null"]
         breed:
           type: string
+        sex:
+          type: ["string", "null"]
+        stage:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
         status:
           type: string
         weightKg:
           type: ["number", "null"]
+        dateReceived:
+          type: ["string", "null"]
         notes:
           type: ["string", "null"]
         investorId:
@@ -510,13 +520,23 @@ components:
         tag:
           type: string
           minLength: 1
+        previousTag:
+          type: ["string", "null"]
         breed:
           type: string
           minLength: 1
+        sex:
+          type: ["string", "null"]
+        stage:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
         status:
           type: string
         weightKg:
           type: ["number", "null"]
+        dateReceived:
+          type: ["string", "null"]
         notes:
           type: ["string", "null"]
         investorId:
@@ -528,13 +548,23 @@ components:
         tag:
           type: string
           minLength: 1
+        previousTag:
+          type: ["string", "null"]
         breed:
           type: string
           minLength: 1
+        sex:
+          type: ["string", "null"]
+        stage:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
         status:
           type: string
         weightKg:
           type: ["number", "null"]
+        dateReceived:
+          type: ["string", "null"]
         notes:
           type: ["string", "null"]
         investorId:

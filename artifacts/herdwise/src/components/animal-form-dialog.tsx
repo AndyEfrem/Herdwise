@@ -6,44 +6,45 @@ import {
   useCreateAnimal,
   useUpdateAnimal,
   useListInvestors,
+  useCreateTreatment,
   getListCattleQueryKey,
   getGetAnimalQueryKey,
+  getListTreatmentsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+
+const STAGE_OPTIONS = ["Calf", "Weaner", "Yearling", "Heifer", "Cow", "Bull", "Steer", "Ox"];
 
 const formSchema = z.object({
   tag: z.string().min(1, "Tag is required"),
+  previousTag: z.string().optional(),
   breed: z.string().min(1, "Breed is required"),
+  sex: z.string().optional(),
+  stage: z.string().optional(),
+  description: z.string().optional(),
   status: z.string().min(1, "Status is required"),
   weightKg: z.string().optional(),
+  dateReceived: z.string().optional(),
   investorId: z.string().optional(),
   notes: z.string().optional(),
+  arrivalDipping: z.boolean().default(false),
+  arrivalDosing: z.boolean().default(false),
+  arrivalBloodTest: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -51,9 +52,14 @@ type FormValues = z.infer<typeof formSchema>;
 type Animal = {
   id: number;
   tag: string;
+  previousTag?: string | null;
   breed: string;
+  sex?: string | null;
+  stage?: string | null;
+  description?: string | null;
   status: string;
   weightKg?: number | null;
+  dateReceived?: string | null;
   investorId?: number | null;
   notes?: string | null;
 };
@@ -68,18 +74,17 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isEdit = !!animal;
+  const today = new Date().toISOString().slice(0, 10);
 
   const { data: investors } = useListInvestors();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      tag: "",
-      breed: "",
-      status: "active",
-      weightKg: "",
-      investorId: "",
-      notes: "",
+      tag: "", previousTag: "", breed: "", sex: "none", stage: "none",
+      description: "", status: "active", weightKg: "", dateReceived: today,
+      investorId: "none", notes: "",
+      arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
     },
   });
 
@@ -88,35 +93,52 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
       if (animal) {
         form.reset({
           tag: animal.tag,
+          previousTag: animal.previousTag ?? "",
           breed: animal.breed,
+          sex: animal.sex ?? "none",
+          stage: animal.stage ?? "none",
+          description: animal.description ?? "",
           status: animal.status,
           weightKg: animal.weightKg != null ? String(animal.weightKg) : "",
+          dateReceived: animal.dateReceived ?? today,
           investorId: animal.investorId != null ? String(animal.investorId) : "none",
           notes: animal.notes ?? "",
+          arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
         });
       } else {
         form.reset({
-          tag: "",
-          breed: "",
-          status: "active",
-          weightKg: "",
-          investorId: "none",
-          notes: "",
+          tag: "", previousTag: "", breed: "", sex: "none", stage: "none",
+          description: "", status: "active", weightKg: "", dateReceived: today,
+          investorId: "none", notes: "",
+          arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
         });
       }
     }
   }, [open, animal]);
 
+  const createTreatment = useCreateTreatment({ mutation: {} });
+
   const createMutation = useCreateAnimal({
     mutation: {
-      onSuccess: () => {
-        toast({ title: "Animal added", description: "New animal registered successfully." });
+      onSuccess: async (created) => {
+        const arrivalDate = form.getValues("dateReceived") || today;
+        const tasks: Promise<unknown>[] = [];
+        if (form.getValues("arrivalDipping")) {
+          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Dipping", scheduledDate: arrivalDate, notes: "Arrival dipping" } }));
+        }
+        if (form.getValues("arrivalDosing")) {
+          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Deworming", scheduledDate: arrivalDate, notes: "Arrival dosing/deworming" } }));
+        }
+        if (form.getValues("arrivalBloodTest")) {
+          tasks.push(createTreatment.mutateAsync({ data: { cattleId: created.id, treatmentType: "Blood Test", scheduledDate: arrivalDate, notes: "Arrival blood test (BD)" } }));
+        }
+        await Promise.allSettled(tasks);
+        toast({ title: "Animal registered", description: "New stock entry saved successfully." });
         queryClient.invalidateQueries({ queryKey: getListCattleQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListTreatmentsQueryKey() });
         onOpenChange(false);
       },
-      onError: () => {
-        toast({ title: "Failed to add animal", variant: "destructive" });
-      },
+      onError: () => toast({ title: "Failed to add animal", variant: "destructive" }),
     },
   });
 
@@ -128,9 +150,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
         if (animal) queryClient.invalidateQueries({ queryKey: getGetAnimalQueryKey(animal.id) });
         onOpenChange(false);
       },
-      onError: () => {
-        toast({ title: "Failed to update animal", variant: "destructive" });
-      },
+      onError: () => toast({ title: "Failed to update animal", variant: "destructive" }),
     },
   });
 
@@ -139,9 +159,14 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
   function onSubmit(values: FormValues) {
     const payload = {
       tag: values.tag,
+      previousTag: values.previousTag || null,
       breed: values.breed,
+      sex: values.sex && values.sex !== "none" ? values.sex : null,
+      stage: values.stage && values.stage !== "none" ? values.stage : null,
+      description: values.description || null,
       status: values.status,
       weightKg: values.weightKg ? parseFloat(values.weightKg) : null,
+      dateReceived: values.dateReceived || null,
       investorId: values.investorId && values.investorId !== "none" ? parseInt(values.investorId, 10) : null,
       notes: values.notes || null,
     };
@@ -155,138 +180,196 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Animal" : "Add Animal"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Animal" : "Register New Stock"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            {/* Tags */}
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="tag"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tag</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. HW-009" data-testid="input-tag" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="breed"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Breed</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. Angus" data-testid="input-breed" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-status">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="quarantined">Quarantined</SelectItem>
-                        <SelectItem value="sold">Sold</SelectItem>
-                        <SelectItem value="deceased">Deceased</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="weightKg"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Weight (kg)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        placeholder="e.g. 480.5"
-                        data-testid="input-weight"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="investorId"
-              render={({ field }) => (
+              <FormField control={form.control} name="tag" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assigned Investor</FormLabel>
+                  <FormLabel>Tag <span className="text-destructive">*</span></FormLabel>
+                  <FormControl><Input placeholder="e.g. HW-009" data-testid="input-tag" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="previousTag" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Previous Tag</FormLabel>
+                  <FormControl><Input placeholder="Old tag number" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </div>
+
+            {/* Breed + Date Received */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="breed" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Breed <span className="text-destructive">*</span></FormLabel>
+                  <FormControl><Input placeholder="e.g. Angus" data-testid="input-breed" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="dateReceived" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date Received</FormLabel>
+                  <FormControl><Input type="date" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </div>
+
+            {/* Sex + Stage */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="sex" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sex</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger data-testid="select-investor">
-                        <SelectValue placeholder="None (unassigned)" />
-                      </SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Select sex" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">None (unassigned)</SelectItem>
-                      {investors?.map((inv) => (
-                        <SelectItem key={inv.id} value={String(inv.id)}>
-                          {inv.name}
-                        </SelectItem>
+                      <SelectItem value="none">Unknown</SelectItem>
+                      <SelectItem value="female">Female (F)</SelectItem>
+                      <SelectItem value="male">Male (M)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="stage" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Stage</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">—</SelectItem>
+                      {STAGE_OPTIONS.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
+            {/* Description */}
+            <FormField control={form.control} name="description" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. Light brown, horned, white patch on forehead" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            {/* Status + Weight */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>Status <span className="text-destructive">*</span></FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-status"><SelectValue placeholder="Select status" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="quarantined">Quarantined</SelectItem>
+                      <SelectItem value="sold">Sold</SelectItem>
+                      <SelectItem value="deceased">Deceased</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="weightKg" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight In (kg)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Optional notes about this animal..."
-                      className="resize-none"
-                      rows={3}
-                      data-testid="textarea-notes"
-                      {...field}
-                    />
+                    <Input type="number" step="0.1" placeholder="e.g. 320" data-testid="input-weight" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
+            </div>
+
+            {/* Investor */}
+            <FormField control={form.control} name="investorId" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Owner (Investor)</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger data-testid="select-investor"><SelectValue placeholder="None (unassigned)" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">None (unassigned)</SelectItem>
+                    {investors?.map((inv) => (
+                      <SelectItem key={inv.id} value={String(inv.id)}>{inv.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            {/* Notes */}
+            <FormField control={form.control} name="notes" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Notes</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Any additional notes..." className="resize-none" rows={2} data-testid="textarea-notes" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            {/* Arrival Treatments — only on create */}
+            {!isEdit && (
+              <>
+                <Separator />
+                <div>
+                  <p className="text-sm font-medium mb-3">Arrival Treatments</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <FormField control={form.control} name="arrivalDipping" render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 space-y-0 border rounded-md p-3">
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <FormLabel className="font-normal cursor-pointer">Dipping</FormLabel>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="arrivalDosing" render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 space-y-0 border rounded-md p-3">
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <FormLabel className="font-normal cursor-pointer">Dosing</FormLabel>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="arrivalBloodTest" render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 space-y-0 border rounded-md p-3">
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <FormLabel className="font-normal cursor-pointer">Blood Test (BD)</FormLabel>
+                      </FormItem>
+                    )} />
+                  </div>
+                </div>
+              </>
+            )}
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-                Cancel
-              </Button>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Cancel</Button>
               <Button type="submit" disabled={isPending} data-testid="button-submit-animal">
-                {isPending ? "Saving..." : isEdit ? "Save Changes" : "Add Animal"}
+                {isPending ? "Saving..." : isEdit ? "Save Changes" : "Register Stock"}
               </Button>
             </DialogFooter>
           </form>
