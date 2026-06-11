@@ -245,6 +245,68 @@ export interface DashboardSummary {
   upcomingCare: UpcomingCareItem[];
 }
 
+export interface CategoryCount {
+  label: string;
+  count: number;
+}
+
+export interface WeightBucket {
+  range: string;
+  count: number;
+}
+
+export interface MarketReadinessReport {
+  ready: number;
+  within30: number;
+  within60: number;
+  within90: number;
+  beyond90: number;
+  notProjectable: number;
+}
+
+export interface GrowthTrendPoint {
+  month: string;
+  avgWeightKg: number;
+  recordCount: number;
+}
+
+export interface TreatmentTypeStat {
+  treatmentType: string;
+  total: number;
+  completed: number;
+  pending: number;
+}
+
+export interface TreatmentTotals {
+  total: number;
+  completed: number;
+  pending: number;
+}
+
+export interface InvestorReportRow {
+  investorId: number;
+  name: string;
+  cattleCount: number;
+  totalWeightKg: number;
+  marketReadyCount: number;
+}
+
+export interface ReportsSummary {
+  totalCattle: number;
+  totalHerdWeightKg: number;
+  avgWeightKg: number;
+  byBreed: CategoryCount[];
+  bySex: CategoryCount[];
+  byStage: CategoryCount[];
+  byStatus: CategoryCount[];
+  weightDistribution: WeightBucket[];
+  marketReadiness: MarketReadinessReport;
+  growthTrend: GrowthTrendPoint[];
+  treatmentStats: TreatmentTypeStat[];
+  treatmentTotals: TreatmentTotals;
+  investorBreakdown: InvestorReportRow[];
+}
+
 export type ListCattleParams = {
 status?: string;
 investorId?: number;

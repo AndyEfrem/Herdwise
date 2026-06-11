@@ -31,6 +31,7 @@ import type {
   InvestorUpdate,
   ListCattleParams,
   ListTreatmentsParams,
+  ReportsSummary,
   Treatment,
   TreatmentInput,
   TreatmentUpdate,
@@ -1530,6 +1531,83 @@ export function useGetDashboardSummary<TData = Awaited<ReturnType<typeof getDash
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetDashboardSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetReportsSummaryUrl = () => {
+
+
+
+
+  return `/api/reports/summary`
+}
+
+/**
+ * @summary Aggregated farm analytics for reporting
+ */
+export const getReportsSummary = async ( options?: RequestInit): Promise<ReportsSummary> => {
+
+  return customFetch<ReportsSummary>(getGetReportsSummaryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetReportsSummaryQueryKey = () => {
+    return [
+    `/api/reports/summary`
+    ] as const;
+    }
+
+
+export const getGetReportsSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getReportsSummary>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReportsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetReportsSummaryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getReportsSummary>>> = ({ signal }) => getReportsSummary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getReportsSummary>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetReportsSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getReportsSummary>>>
+export type GetReportsSummaryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Aggregated farm analytics for reporting
+ */
+
+export function useGetReportsSummary<TData = Awaited<ReturnType<typeof getReportsSummary>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReportsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetReportsSummaryQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

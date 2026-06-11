@@ -405,3 +405,64 @@ export const GetDashboardSummaryResponse = zod.object({
 })
 
 
+/**
+ * @summary Aggregated farm analytics for reporting
+ */
+export const GetReportsSummaryResponse = zod.object({
+  "totalCattle": zod.number(),
+  "totalHerdWeightKg": zod.number(),
+  "avgWeightKg": zod.number(),
+  "byBreed": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+})),
+  "bySex": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+})),
+  "byStage": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+})),
+  "byStatus": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+})),
+  "weightDistribution": zod.array(zod.object({
+  "range": zod.string(),
+  "count": zod.number()
+})),
+  "marketReadiness": zod.object({
+  "ready": zod.number(),
+  "within30": zod.number(),
+  "within60": zod.number(),
+  "within90": zod.number(),
+  "beyond90": zod.number(),
+  "notProjectable": zod.number()
+}),
+  "growthTrend": zod.array(zod.object({
+  "month": zod.string(),
+  "avgWeightKg": zod.number(),
+  "recordCount": zod.number()
+})),
+  "treatmentStats": zod.array(zod.object({
+  "treatmentType": zod.string(),
+  "total": zod.number(),
+  "completed": zod.number(),
+  "pending": zod.number()
+})),
+  "treatmentTotals": zod.object({
+  "total": zod.number(),
+  "completed": zod.number(),
+  "pending": zod.number()
+}),
+  "investorBreakdown": zod.array(zod.object({
+  "investorId": zod.number(),
+  "name": zod.string(),
+  "cattleCount": zod.number(),
+  "totalWeightKg": zod.number(),
+  "marketReadyCount": zod.number()
+}))
+})
+
+

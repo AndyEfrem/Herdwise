@@ -19,6 +19,8 @@ tags:
     description: Treatment records
   - name: dashboard
     description: Dashboard summaries
+  - name: reports
+    description: Farm analytics and reporting
 paths:
   /healthz:
     get:
@@ -462,6 +464,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/DashboardSummary"
 
+  /reports/summary:
+    get:
+      operationId: getReportsSummary
+      tags: [reports]
+      summary: Aggregated farm analytics for reporting
+      responses:
+        "200":
+          description: Reports summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportsSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -785,3 +800,135 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UpcomingCareItem"
+
+    CategoryCount:
+      type: object
+      required: [label, count]
+      properties:
+        label:
+          type: string
+        count:
+          type: integer
+
+    WeightBucket:
+      type: object
+      required: [range, count]
+      properties:
+        range:
+          type: string
+        count:
+          type: integer
+
+    MarketReadinessReport:
+      type: object
+      required: [ready, within30, within60, within90, beyond90, notProjectable]
+      properties:
+        ready:
+          type: integer
+        within30:
+          type: integer
+        within60:
+          type: integer
+        within90:
+          type: integer
+        beyond90:
+          type: integer
+        notProjectable:
+          type: integer
+
+    GrowthTrendPoint:
+      type: object
+      required: [month, avgWeightKg, recordCount]
+      properties:
+        month:
+          type: string
+        avgWeightKg:
+          type: number
+        recordCount:
+          type: integer
+
+    TreatmentTypeStat:
+      type: object
+      required: [treatmentType, total, completed, pending]
+      properties:
+        treatmentType:
+          type: string
+        total:
+          type: integer
+        completed:
+          type: integer
+        pending:
+          type: integer
+
+    TreatmentTotals:
+      type: object
+      required: [total, completed, pending]
+      properties:
+        total:
+          type: integer
+        completed:
+          type: integer
+        pending:
+          type: integer
+
+    InvestorReportRow:
+      type: object
+      required: [investorId, name, cattleCount, totalWeightKg, marketReadyCount]
+      properties:
+        investorId:
+          type: integer
+        name:
+          type: string
+        cattleCount:
+          type: integer
+        totalWeightKg:
+          type: number
+        marketReadyCount:
+          type: integer
+
+    ReportsSummary:
+      type: object
+      required: [totalCattle, totalHerdWeightKg, avgWeightKg, byBreed, bySex, byStage, byStatus, weightDistribution, marketReadiness, growthTrend, treatmentStats, treatmentTotals, investorBreakdown]
+      properties:
+        totalCattle:
+          type: integer
+        totalHerdWeightKg:
+          type: number
+        avgWeightKg:
+          type: number
+        byBreed:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryCount"
+        bySex:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryCount"
+        byStage:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryCount"
+        byStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryCount"
+        weightDistribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeightBucket"
+        marketReadiness:
+          $ref: "#/components/schemas/MarketReadinessReport"
+        growthTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/GrowthTrendPoint"
+        treatmentStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreatmentTypeStat"
+        treatmentTotals:
+          $ref: "#/components/schemas/TreatmentTotals"
+        investorBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvestorReportRow"

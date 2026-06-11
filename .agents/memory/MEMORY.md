@@ -1,1 +1,2 @@
 - [Generated Animal type optionality](generated-animal-type.md) — Orval makes non-required OpenAPI fields `T|null|undefined`; local hand-written Animal types that omit `undefined` break with TS2322. Prefer `Pick<Animal,...>`.
+- [Auth & role scoping model](auth-scoping-model.md) — role is derived (investor row = investor, else admin); access control is per-route, not middleware — new farm-wide endpoints must explicitly gate admin-only or they leak data.
