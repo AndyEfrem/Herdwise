@@ -1,16 +1,19 @@
+import { useState } from "react";
 import { useParams, Link, useLocation } from "wouter";
 import {
   useGetAnimal,
   useListTreatments,
   useDeleteAnimal,
+  useUpdateTreatment,
   getGetAnimalQueryKey,
   getListCattleQueryKey,
+  getListTreatmentsQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Trash2, Activity, Scale, Info, Users, Clock } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Activity, Scale, Info, Users, Clock, Plus, CheckCircle2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Table,
@@ -22,6 +25,8 @@ import {
 } from "@/components/ui/table";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { AnimalFormDialog } from "@/components/animal-form-dialog";
+import { TreatmentFormDialog } from "@/components/treatment-form-dialog";
 
 export function CattleDetail() {
   const { id } = useParams();
@@ -30,13 +35,16 @@ export function CattleDetail() {
   const queryClient = useQueryClient();
   const animalId = parseInt(id || "0", 10);
 
+  const [editOpen, setEditOpen] = useState(false);
+  const [treatmentOpen, setTreatmentOpen] = useState(false);
+
   const { data: animal, isLoading } = useGetAnimal(animalId, {
     query: { enabled: !!animalId, queryKey: getGetAnimalQueryKey(animalId) },
   });
 
   const { data: treatments, isLoading: isTreatmentsLoading } = useListTreatments(
     { cattleId: animalId },
-    { query: { enabled: !!animalId } }
+    { query: { enabled: !!animalId, queryKey: getListTreatmentsQueryKey({ cattleId: animalId }) } }
   );
 
   const deleteMutation = useDeleteAnimal({
@@ -46,20 +54,35 @@ export function CattleDetail() {
         queryClient.invalidateQueries({ queryKey: getListCattleQueryKey() });
         setLocation("/cattle");
       },
-      onError: (error: any) => {
-        toast({
-          title: "Failed to delete",
-          description: error.message || "An error occurred",
-          variant: "destructive",
-        });
+      onError: () => {
+        toast({ title: "Failed to delete", variant: "destructive" });
+      },
+    },
+  });
+
+  const markCompleteMutation = useUpdateTreatment({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "Treatment marked complete" });
+        queryClient.invalidateQueries({ queryKey: getListTreatmentsQueryKey({ cattleId: animalId }) });
+      },
+      onError: () => {
+        toast({ title: "Failed to update treatment", variant: "destructive" });
       },
     },
   });
 
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this animal?")) {
+    if (confirm("Delete this animal? This cannot be undone.")) {
       deleteMutation.mutate({ id: animalId });
     }
+  };
+
+  const statusColor: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    active: "default",
+    quarantined: "destructive",
+    sold: "secondary",
+    deceased: "secondary",
   };
 
   if (isLoading || !animal) {
@@ -92,7 +115,7 @@ export function CattleDetail() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold tracking-tight">{animal.tag}</h1>
-              <Badge variant={animal.status === "active" ? "default" : "secondary"}>
+              <Badge variant={statusColor[animal.status] ?? "outline"}>
                 {animal.status}
               </Badge>
             </div>
@@ -100,10 +123,15 @@ export function CattleDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" disabled>
+          <Button variant="outline" onClick={() => setEditOpen(true)} data-testid="button-edit-animal">
             <Edit className="h-4 w-4 mr-2" /> Edit
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+            data-testid="button-delete-animal"
+          >
             <Trash2 className="h-4 w-4 mr-2" /> Delete
           </Button>
         </div>
@@ -124,7 +152,7 @@ export function CattleDetail() {
                   <Scale className="h-3 w-3" /> Weight
                 </p>
                 <p className="text-lg font-medium">
-                  {animal.weightKg ? `${animal.weightKg} kg` : "Not recorded"}
+                  {animal.weightKg != null ? `${animal.weightKg} kg` : "Not recorded"}
                 </p>
               </div>
               <div>
@@ -146,7 +174,7 @@ export function CattleDetail() {
                   {animal.investorName || `Investor #${animal.investorId}`}
                 </Link>
               ) : (
-                <p className="text-sm">Unassigned</p>
+                <p className="text-sm text-muted-foreground">Unassigned</p>
               )}
             </div>
 
@@ -160,11 +188,14 @@ export function CattleDetail() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Activity className="h-5 w-5 text-muted-foreground" />
               Treatment History
             </CardTitle>
+            <Button size="sm" variant="outline" onClick={() => setTreatmentOpen(true)} data-testid="button-add-treatment">
+              <Plus className="h-4 w-4 mr-1" /> Add
+            </Button>
           </CardHeader>
           <CardContent>
             {isTreatmentsLoading ? (
@@ -178,17 +209,33 @@ export function CattleDetail() {
                     <TableHead>Type</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {treatments.map((t) => (
                     <TableRow key={t.id}>
                       <TableCell className="font-medium">{t.treatmentType}</TableCell>
-                      <TableCell>{format(parseISO(t.scheduledDate), "MMM d")}</TableCell>
+                      <TableCell>{format(parseISO(t.scheduledDate), "MMM d, yyyy")}</TableCell>
                       <TableCell>
                         <Badge variant={t.completed ? "secondary" : "default"}>
                           {t.completed ? "Done" : "Pending"}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {!t.completed && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            title="Mark complete"
+                            disabled={markCompleteMutation.isPending}
+                            onClick={() => markCompleteMutation.mutate({ id: t.id, data: { completed: true } })}
+                            data-testid={`button-complete-treatment-${t.id}`}
+                          >
+                            <CheckCircle2 className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -196,12 +243,24 @@ export function CattleDetail() {
               </Table>
             ) : (
               <div className="text-center py-6 text-muted-foreground text-sm">
+                <Activity className="h-8 w-8 mx-auto mb-2 opacity-20" />
                 No treatments recorded for this animal.
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <AnimalFormDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        animal={animal}
+      />
+      <TreatmentFormDialog
+        open={treatmentOpen}
+        onOpenChange={setTreatmentOpen}
+        prefillCattleId={animalId}
+      />
     </div>
   );
 }

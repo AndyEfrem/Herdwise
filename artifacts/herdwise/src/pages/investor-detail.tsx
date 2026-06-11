@@ -5,6 +5,7 @@ import {
   useDeleteInvestor,
   getGetInvestorQueryKey,
   getListInvestorsQueryKey,
+  getListCattleQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,7 @@ export function InvestorDetail() {
 
   const { data: cattle, isLoading: isCattleLoading } = useListCattle(
     { investorId },
-    { query: { enabled: !!investorId } }
+    { query: { enabled: !!investorId, queryKey: getListCattleQueryKey({ investorId }) } }
   );
 
   const deleteMutation = useDeleteInvestor({
