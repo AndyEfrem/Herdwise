@@ -33,6 +33,7 @@ const STAGE_OPTIONS = ["Calf", "Weaner", "Yearling", "Heifer", "Cow", "Bull", "S
 const formSchema = z.object({
   tag: z.string().min(1, "Tag is required"),
   previousTag: z.string().optional(),
+  lotNumber: z.string().optional(),
   breed: z.string().min(1, "Breed is required"),
   sex: z.string().optional(),
   stage: z.string().optional(),
@@ -53,6 +54,7 @@ type Animal = {
   id: number;
   tag: string;
   previousTag?: string | null;
+  lotNumber?: string | null;
   breed: string;
   sex?: string | null;
   stage?: string | null;
@@ -81,7 +83,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      tag: "", previousTag: "", breed: "", sex: "none", stage: "none",
+      tag: "", previousTag: "", lotNumber: "", breed: "", sex: "none", stage: "none",
       description: "", status: "active", weightKg: "", dateReceived: today,
       investorId: "none", notes: "",
       arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
@@ -94,6 +96,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
         form.reset({
           tag: animal.tag,
           previousTag: animal.previousTag ?? "",
+          lotNumber: animal.lotNumber ?? "",
           breed: animal.breed,
           sex: animal.sex ?? "none",
           stage: animal.stage ?? "none",
@@ -107,7 +110,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
         });
       } else {
         form.reset({
-          tag: "", previousTag: "", breed: "", sex: "none", stage: "none",
+          tag: "", previousTag: "", lotNumber: "", breed: "", sex: "none", stage: "none",
           description: "", status: "active", weightKg: "", dateReceived: today,
           investorId: "none", notes: "",
           arrivalDipping: false, arrivalDosing: false, arrivalBloodTest: false,
@@ -160,6 +163,7 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
     const payload = {
       tag: values.tag,
       previousTag: values.previousTag || null,
+      lotNumber: values.lotNumber || null,
       breed: values.breed,
       sex: values.sex && values.sex !== "none" ? values.sex : null,
       stage: values.stage && values.stage !== "none" ? values.stage : null,
@@ -186,8 +190,8 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            {/* Tags */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Tags + Lot */}
+            <div className="grid grid-cols-3 gap-3">
               <FormField control={form.control} name="tag" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tag <span className="text-destructive">*</span></FormLabel>
@@ -198,7 +202,15 @@ export function AnimalFormDialog({ open, onOpenChange, animal }: AnimalFormDialo
               <FormField control={form.control} name="previousTag" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Previous Tag</FormLabel>
-                  <FormControl><Input placeholder="Old tag number" {...field} /></FormControl>
+                  <FormControl><Input placeholder="Old tag" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="lotNumber" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lot No.</FormLabel>
+                  <FormControl><Input placeholder="e.g. 14A (auction)" {...field} /></FormControl>
+                  <p className="text-[11px] text-muted-foreground mt-1">Leave blank for private sale</p>
                   <FormMessage />
                 </FormItem>
               )} />

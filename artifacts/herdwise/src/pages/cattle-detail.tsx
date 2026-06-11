@@ -182,6 +182,14 @@ export function CattleDetail() {
                 </div>
               )}
               <div>
+                <p className="text-muted-foreground mb-1">Lot No.</p>
+                <p className="font-medium">
+                  {animal.lotNumber
+                    ? <span className="font-mono">Lot {animal.lotNumber}</span>
+                    : <span className="text-muted-foreground">Private sale</span>}
+                </p>
+              </div>
+              <div>
                 <p className="text-muted-foreground mb-1">Breed</p>
                 <p className="font-medium">{animal.breed}</p>
               </div>

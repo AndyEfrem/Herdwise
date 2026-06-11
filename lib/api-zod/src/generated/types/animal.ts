@@ -11,6 +11,8 @@ export interface Animal {
   tag: string;
   /** @nullable */
   previousTag?: string | null;
+  /** @nullable */
+  lotNumber?: string | null;
   breed: string;
   /** @nullable */
   sex?: string | null;

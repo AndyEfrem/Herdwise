@@ -18,6 +18,8 @@ export interface Animal {
   tag: string;
   /** @nullable */
   previousTag?: string | null;
+  /** @nullable */
+  lotNumber?: string | null;
   breed: string;
   /** @nullable */
   sex?: string | null;
@@ -44,6 +46,8 @@ export interface AnimalInput {
   tag: string;
   /** @nullable */
   previousTag?: string | null;
+  /** @nullable */
+  lotNumber?: string | null;
   /** @minLength 1 */
   breed: string;
   /** @nullable */
@@ -68,6 +72,8 @@ export interface AnimalUpdate {
   tag?: string;
   /** @nullable */
   previousTag?: string | null;
+  /** @nullable */
+  lotNumber?: string | null;
   /** @minLength 1 */
   breed?: string;
   /** @nullable */

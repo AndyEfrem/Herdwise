@@ -27,6 +27,7 @@ type Animal = {
   id: number;
   tag: string;
   previousTag?: string | null;
+  lotNumber?: string | null;
   breed: string;
   sex?: string | null;
   stage?: string | null;
@@ -108,6 +109,7 @@ export function CattleList() {
             <TableRow>
               <TableHead>Tag</TableHead>
               <TableHead>Prev. Tag</TableHead>
+              <TableHead>Lot No.</TableHead>
               <TableHead>Breed</TableHead>
               <TableHead>Sex</TableHead>
               <TableHead>Stage</TableHead>
@@ -136,6 +138,7 @@ export function CattleList() {
                     </Link>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{animal.previousTag || "—"}</TableCell>
+                  <TableCell className="text-sm font-medium">{animal.lotNumber ? <Badge variant="outline" className="font-mono text-xs">Lot {animal.lotNumber}</Badge> : <span className="text-muted-foreground text-xs">Private</span>}</TableCell>
                   <TableCell>{animal.breed}</TableCell>
                   <TableCell className="text-sm">
                     {animal.sex ? <Badge variant="outline">{SEX_LABEL[animal.sex] ?? animal.sex}</Badge> : "—"}

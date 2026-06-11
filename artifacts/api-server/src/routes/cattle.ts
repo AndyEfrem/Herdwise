@@ -47,6 +47,7 @@ router.get("/cattle", async (req, res): Promise<void> => {
       id: cattleTable.id,
       tag: cattleTable.tag,
       previousTag: cattleTable.previousTag,
+      lotNumber: cattleTable.lotNumber,
       breed: cattleTable.breed,
       sex: cattleTable.sex,
       stage: cattleTable.stage,
@@ -67,6 +68,7 @@ router.get("/cattle", async (req, res): Promise<void> => {
   res.json(rows.map((r) => ({
     ...r,
     previousTag: r.previousTag ?? null,
+    lotNumber: r.lotNumber ?? null,
     sex: r.sex ?? null,
     stage: r.stage ?? null,
     description: r.description ?? null,
@@ -119,6 +121,7 @@ router.get("/cattle/:id", async (req, res): Promise<void> => {
       id: cattleTable.id,
       tag: cattleTable.tag,
       previousTag: cattleTable.previousTag,
+      lotNumber: cattleTable.lotNumber,
       breed: cattleTable.breed,
       sex: cattleTable.sex,
       stage: cattleTable.stage,
@@ -149,6 +152,7 @@ router.get("/cattle/:id", async (req, res): Promise<void> => {
   res.json(GetAnimalResponse.parse({
     ...row,
     previousTag: row.previousTag ?? null,
+    lotNumber: row.lotNumber ?? null,
     sex: row.sex ?? null,
     stage: row.stage ?? null,
     description: row.description ?? null,

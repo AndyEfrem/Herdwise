@@ -7,6 +7,7 @@ export const cattleTable = pgTable("cattle", {
   id: serial("id").primaryKey(),
   tag: text("tag").notNull(),
   previousTag: text("previous_tag"),
+  lotNumber: text("lot_number"),
   breed: text("breed").notNull(),
   sex: text("sex"),
   stage: text("stage"),

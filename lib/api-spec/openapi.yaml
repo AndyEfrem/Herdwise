@@ -490,6 +490,8 @@ components:
           type: string
         previousTag:
           type: ["string", "null"]
+        lotNumber:
+          type: ["string", "null"]
         breed:
           type: string
         sex:
@@ -522,6 +524,8 @@ components:
           minLength: 1
         previousTag:
           type: ["string", "null"]
+        lotNumber:
+          type: ["string", "null"]
         breed:
           type: string
           minLength: 1
@@ -549,6 +553,8 @@ components:
           type: string
           minLength: 1
         previousTag:
+          type: ["string", "null"]
+        lotNumber:
           type: ["string", "null"]
         breed:
           type: string

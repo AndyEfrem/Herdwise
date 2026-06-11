@@ -11,6 +11,8 @@ export interface AnimalInput {
   tag: string;
   /** @nullable */
   previousTag?: string | null;
+  /** @nullable */
+  lotNumber?: string | null;
   /** @minLength 1 */
   breed: string;
   /** @nullable */
