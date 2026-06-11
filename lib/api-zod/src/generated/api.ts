@@ -52,7 +52,13 @@ export const ListCattleResponseItem = zod.object({
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish(),
   "investorName": zod.string().nullish(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "marketWeightKg": zod.number().optional().describe('Target weight (kg) at which the animal is ready for market.'),
+  "marketReady": zod.boolean().optional().describe('True when the current weight is at or above the market target.'),
+  "weightRecordCount": zod.number().optional().describe('Number of weight records used for the projection.'),
+  "avgDailyGainKg": zod.number().nullish().describe('Average daily weight gain (kg\/day) from linear regression over weight history. Null when not computable.'),
+  "daysToMarket": zod.number().nullish().describe('Projected days until the animal reaches the market weight. 0 if already ready, null when not projectable.'),
+  "projectedMarketDate": zod.string().nullish().describe('Projected calendar date (YYYY-MM-DD) the animal reaches market weight. Null when not projectable.')
 })
 export const ListCattleResponse = zod.array(ListCattleResponseItem)
 
@@ -102,7 +108,13 @@ export const GetAnimalResponse = zod.object({
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish(),
   "investorName": zod.string().nullish(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "marketWeightKg": zod.number().optional().describe('Target weight (kg) at which the animal is ready for market.'),
+  "marketReady": zod.boolean().optional().describe('True when the current weight is at or above the market target.'),
+  "weightRecordCount": zod.number().optional().describe('Number of weight records used for the projection.'),
+  "avgDailyGainKg": zod.number().nullish().describe('Average daily weight gain (kg\/day) from linear regression over weight history. Null when not computable.'),
+  "daysToMarket": zod.number().nullish().describe('Projected days until the animal reaches the market weight. 0 if already ready, null when not projectable.'),
+  "projectedMarketDate": zod.string().nullish().describe('Projected calendar date (YYYY-MM-DD) the animal reaches market weight. Null when not projectable.')
 })
 
 
@@ -147,7 +159,13 @@ export const UpdateAnimalResponse = zod.object({
   "notes": zod.string().nullish(),
   "investorId": zod.number().nullish(),
   "investorName": zod.string().nullish(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "marketWeightKg": zod.number().optional().describe('Target weight (kg) at which the animal is ready for market.'),
+  "marketReady": zod.boolean().optional().describe('True when the current weight is at or above the market target.'),
+  "weightRecordCount": zod.number().optional().describe('Number of weight records used for the projection.'),
+  "avgDailyGainKg": zod.number().nullish().describe('Average daily weight gain (kg\/day) from linear regression over weight history. Null when not computable.'),
+  "daysToMarket": zod.number().nullish().describe('Projected days until the animal reaches the market weight. 0 if already ready, null when not projectable.'),
+  "projectedMarketDate": zod.string().nullish().describe('Projected calendar date (YYYY-MM-DD) the animal reaches market weight. Null when not projectable.')
 })
 
 

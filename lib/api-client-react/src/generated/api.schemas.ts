@@ -39,6 +39,27 @@ export interface Animal {
   /** @nullable */
   investorName?: string | null;
   createdAt: string;
+  /** Target weight (kg) at which the animal is ready for market. */
+  marketWeightKg?: number;
+  /** True when the current weight is at or above the market target. */
+  marketReady?: boolean;
+  /** Number of weight records used for the projection. */
+  weightRecordCount?: number;
+  /**
+     * Average daily weight gain (kg/day) from linear regression over weight history. Null when not computable.
+     * @nullable
+     */
+  avgDailyGainKg?: number | null;
+  /**
+     * Projected days until the animal reaches the market weight. 0 if already ready, null when not projectable.
+     * @nullable
+     */
+  daysToMarket?: number | null;
+  /**
+     * Projected calendar date (YYYY-MM-DD) the animal reaches market weight. Null when not projectable.
+     * @nullable
+     */
+  projectedMarketDate?: string | null;
 }
 
 export interface AnimalInput {

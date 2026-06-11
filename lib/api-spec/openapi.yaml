@@ -514,6 +514,24 @@ components:
           type: ["string", "null"]
         createdAt:
           type: string
+        marketWeightKg:
+          type: number
+          description: Target weight (kg) at which the animal is ready for market.
+        marketReady:
+          type: boolean
+          description: True when the current weight is at or above the market target.
+        weightRecordCount:
+          type: integer
+          description: Number of weight records used for the projection.
+        avgDailyGainKg:
+          type: ["number", "null"]
+          description: Average daily weight gain (kg/day) from linear regression over weight history. Null when not computable.
+        daysToMarket:
+          type: ["integer", "null"]
+          description: Projected days until the animal reaches the market weight. 0 if already ready, null when not projectable.
+        projectedMarketDate:
+          type: ["string", "null"]
+          description: Projected calendar date (YYYY-MM-DD) the animal reaches market weight. Null when not projectable.
 
     AnimalInput:
       type: object

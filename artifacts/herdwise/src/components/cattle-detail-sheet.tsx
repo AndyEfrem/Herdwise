@@ -27,7 +27,7 @@ import {
 } from "recharts";
 import {
   Edit, Trash2, CheckSquare, Square, TrendingUp, Minus, Scale,
-  Tag, Calendar, Users, Activity, CheckCircle2,
+  Tag, Calendar, Users, Activity, CheckCircle2, Target, Rocket,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -328,6 +328,75 @@ export function CattleDetailSheet({ animalId, onClose }: CattleDetailSheetProps)
                   ) : (
                     <p className="text-sm text-muted-foreground text-center py-4">No treatments recorded.</p>
                   )}
+                </section>
+
+                <Separator />
+
+                {/* ── Market Projection ── */}
+                <section>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                    <Rocket className="h-3.5 w-3.5" /> Market Projection
+                  </h3>
+                  {(() => {
+                    const target = animal.marketWeightKg ?? 500;
+                    const current = animal.weightKg ?? 0;
+                    const pct = Math.min(100, Math.max(0, (current / target) * 100));
+                    return (
+                      <div className="rounded-lg border bg-gradient-to-br from-muted/40 to-transparent p-4 space-y-4">
+                        {/* Progress toward target weight */}
+                        <div>
+                          <div className="flex items-end justify-between mb-1.5">
+                            <span className="text-sm font-medium flex items-center gap-1.5">
+                              <Target className="h-3.5 w-3.5 text-muted-foreground" />
+                              {current} / {target} kg
+                            </span>
+                            <span className="text-xs text-muted-foreground">{pct.toFixed(0)}% to market</span>
+                          </div>
+                          <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${animal.marketReady ? "bg-emerald-500" : "bg-primary"}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {animal.marketReady ? (
+                          <div className="flex items-center gap-2 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-3 py-2.5 text-sm font-medium">
+                            <CheckCircle2 className="h-4 w-4 shrink-0" />
+                            Ready for market — at or above {target} kg.
+                          </div>
+                        ) : animal.projectedMarketDate && animal.daysToMarket != null ? (
+                          <div className="grid grid-cols-3 gap-3 text-center">
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-0.5">Projected sale</p>
+                              <p className="font-semibold text-sm">{format(parseISO(animal.projectedMarketDate), "dd MMM yyyy")}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-0.5">Time to market</p>
+                              <p className="font-semibold text-sm">
+                                {animal.daysToMarket >= 30
+                                  ? `~${Math.round(animal.daysToMarket / 30)} mo`
+                                  : `${animal.daysToMarket} d`}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-0.5">Daily gain</p>
+                              <p className="font-semibold text-sm flex items-center justify-center gap-1">
+                                <TrendingUp className="h-3 w-3 text-primary" />
+                                {animal.avgDailyGainKg?.toFixed(2)} kg
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            {(animal.weightRecordCount ?? 0) < 2
+                              ? "Record at least two weigh-ins to project a market-ready date."
+                              : "No upward weight trend yet — projection unavailable."}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </section>
 
                 <Separator />

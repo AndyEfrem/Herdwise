@@ -1,0 +1,1 @@
+- [Generated Animal type optionality](generated-animal-type.md) — Orval makes non-required OpenAPI fields `T|null|undefined`; local hand-written Animal types that omit `undefined` break with TS2322. Prefer `Pick<Animal,...>`.

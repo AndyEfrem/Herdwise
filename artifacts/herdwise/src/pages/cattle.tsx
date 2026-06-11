@@ -16,7 +16,10 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Plus, Box, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Search, Plus, Box, MoreHorizontal, Pencil, Trash2, ArrowUpDown, CheckCircle2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -40,7 +43,15 @@ type Animal = {
   investorName: string | null;
   notes: string | null;
   createdAt: string;
+  marketWeightKg?: number;
+  marketReady?: boolean;
+  weightRecordCount?: number;
+  avgDailyGainKg?: number | null;
+  daysToMarket?: number | null;
+  projectedMarketDate?: string | null;
 };
+
+type SortKey = "default" | "closest" | "heaviest" | "soonest";
 
 const SEX_LABEL: Record<string, string> = { male: "M", female: "F" };
 
@@ -53,6 +64,7 @@ const statusColor: Record<string, "default" | "secondary" | "destructive" | "out
 
 export function CattleList() {
   const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("default");
   const [addOpen, setAddOpen] = useState(false);
   const [editAnimal, setEditAnimal] = useState<Animal | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -71,11 +83,34 @@ export function CattleList() {
     },
   });
 
-  const filteredCattle = cattle?.filter((c) =>
-    c.tag.toLowerCase().includes(search.toLowerCase()) ||
-    c.breed.toLowerCase().includes(search.toLowerCase()) ||
-    (c.investorName ?? "").toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCattle = cattle
+    ?.filter((c) =>
+      c.tag.toLowerCase().includes(search.toLowerCase()) ||
+      c.breed.toLowerCase().includes(search.toLowerCase()) ||
+      (c.investorName ?? "").toLowerCase().includes(search.toLowerCase())
+    )
+    .slice()
+    .sort((a, b) => {
+      switch (sortKey) {
+        case "heaviest":
+          return (b.weightKg ?? -Infinity) - (a.weightKg ?? -Infinity);
+        case "closest": {
+          // Highest % toward target first; ready animals on top.
+          const ap = (a.weightKg ?? 0) / (a.marketWeightKg ?? 500);
+          const bp = (b.weightKg ?? 0) / (b.marketWeightKg ?? 500);
+          return bp - ap;
+        }
+        case "soonest": {
+          // Soonest projected sale first; ready (0) before later dates,
+          // animals with no projection sink to the bottom.
+          const ad = a.marketReady ? 0 : a.daysToMarket ?? Infinity;
+          const bd = b.marketReady ? 0 : b.daysToMarket ?? Infinity;
+          return ad - bd;
+        }
+        default:
+          return 0; // preserve API order (date received)
+      }
+    });
 
   return (
     <div className="space-y-6">
@@ -91,8 +126,8 @@ export function CattleList() {
         )}
       </div>
 
-      <div className="flex items-center gap-2 max-w-md">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="relative flex-1 max-w-md">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -103,6 +138,18 @@ export function CattleList() {
             data-testid="input-search-cattle"
           />
         </div>
+        <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+          <SelectTrigger className="w-full sm:w-[220px]" data-testid="select-sort-cattle">
+            <ArrowUpDown className="h-4 w-4 mr-2 text-muted-foreground" />
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">Date received</SelectItem>
+            <SelectItem value="closest">Closest to market</SelectItem>
+            <SelectItem value="soonest">Soonest projected sale</SelectItem>
+            <SelectItem value="heaviest">Heaviest first</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="border rounded-md bg-card overflow-hidden">
@@ -117,6 +164,7 @@ export function CattleList() {
               <TableHead>Stage</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Weight</TableHead>
+              <TableHead className="min-w-[160px]">Market Readiness</TableHead>
               <TableHead>Owner</TableHead>
               <TableHead>Date Received</TableHead>
               {isAdmin && <TableHead className="w-10" />}
@@ -126,7 +174,7 @@ export function CattleList() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 9 }).map((__, j) => (
+                  {Array.from({ length: 11 }).map((__, j) => (
                     <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
                   ))}
                 </TableRow>
@@ -153,6 +201,7 @@ export function CattleList() {
                     <Badge variant={statusColor[animal.status] ?? "outline"}>{animal.status}</Badge>
                   </TableCell>
                   <TableCell>{animal.weightKg != null ? `${animal.weightKg} kg` : "—"}</TableCell>
+                  <TableCell><MarketCell animal={animal} /></TableCell>
                   <TableCell className="text-muted-foreground text-sm">{animal.investorName ?? "—"}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {animal.dateReceived ? format(parseISO(animal.dateReceived), "dd/MM/yyyy") : "—"}
@@ -188,7 +237,7 @@ export function CattleList() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={10} className="h-32 text-center">
+                <TableCell colSpan={11} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
                     <Box className="h-8 w-8 mb-2 opacity-20" />
                     <p className="text-sm font-medium">No cattle found</p>
@@ -208,6 +257,57 @@ export function CattleList() {
         animal={editAnimal}
       />
       <CattleDetailSheet animalId={selectedId} onClose={() => setSelectedId(null)} />
+    </div>
+  );
+}
+
+type MarketCellAnimal = Pick<
+  Animal,
+  "weightKg" | "marketWeightKg" | "marketReady" | "weightRecordCount" | "daysToMarket" | "projectedMarketDate"
+>;
+
+function MarketCell({ animal }: { animal: MarketCellAnimal }) {
+  const target = animal.marketWeightKg ?? 500;
+  const current = animal.weightKg ?? 0;
+  const pct = Math.min(100, Math.max(0, (current / target) * 100));
+
+  let label: React.ReactNode;
+  if (animal.marketReady) {
+    label = (
+      <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+        <CheckCircle2 className="h-3 w-3" /> Ready for market
+      </span>
+    );
+  } else if (animal.projectedMarketDate && animal.daysToMarket != null) {
+    label = (
+      <span className="text-xs text-muted-foreground">
+        {animal.daysToMarket >= 30
+          ? `~${Math.round(animal.daysToMarket / 30)} mo`
+          : `${animal.daysToMarket} d`}
+        {" · "}
+        {format(parseISO(animal.projectedMarketDate), "dd MMM yyyy")}
+      </span>
+    );
+  } else {
+    label = (
+      <span className="text-xs text-muted-foreground/70">
+        {(animal.weightRecordCount ?? 0) < 2 ? "Needs weigh-ins" : "No trend"}
+      </span>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-medium tabular-nums">{pct.toFixed(0)}%</span>
+      </div>
+      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+        <div
+          className={`h-full rounded-full ${animal.marketReady ? "bg-emerald-500" : "bg-primary"}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      {label}
     </div>
   );
 }
