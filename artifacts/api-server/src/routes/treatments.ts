@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, type SQL } from "drizzle-orm";
 import { db, treatmentsTable, cattleTable } from "@workspace/db";
+import { requireAdmin, requireMember } from "../lib/auth";
 import {
   ListTreatmentsQueryParams,
   CreateTreatmentBody,
@@ -18,6 +19,9 @@ router.get("/treatments", async (req, res): Promise<void> => {
     return;
   }
 
+  const access = await requireMember(req, res);
+  if (!access) return;
+
   const { cattleId, upcoming } = query.data;
   const conditions: SQL[] = [];
 
@@ -26,6 +30,10 @@ router.get("/treatments", async (req, res): Promise<void> => {
     const today = new Date().toISOString().slice(0, 10);
     conditions.push(gte(treatmentsTable.scheduledDate, today));
     conditions.push(eq(treatmentsTable.completed, false));
+  }
+  // Investors only see treatments for their own cattle.
+  if (!access.admin && access.investorId !== null) {
+    conditions.push(eq(cattleTable.investorId, access.investorId));
   }
 
   const rows = await db
@@ -61,6 +69,8 @@ router.post("/treatments", async (req, res): Promise<void> => {
     return;
   }
 
+  if (!(await requireAdmin(req, res))) return;
+
   const [treatment] = await db.insert(treatmentsTable).values(parsed.data).returning();
 
   const [cattle] = await db.select().from(cattleTable).where(eq(cattleTable.id, treatment.cattleId));
@@ -86,6 +96,8 @@ router.patch("/treatments/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+
+  if (!(await requireAdmin(req, res))) return;
 
   const updateData: Record<string, unknown> = { ...parsed.data };
   if (parsed.data.completed === true && !parsed.data.completedAt) {
@@ -120,6 +132,8 @@ router.delete("/treatments/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!(await requireAdmin(req, res))) return;
 
   const [treatment] = await db
     .delete(treatmentsTable)

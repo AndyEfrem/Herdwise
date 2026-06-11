@@ -7,11 +7,13 @@ import treatmentsRouter from "./treatments";
 import weightRecordsRouter from "./weight-records";
 import dashboardRouter from "./dashboard";
 import reportsRouter from "./reports";
+import adminsRouter from "./admins";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(meRouter);
+router.use(adminsRouter);
 router.use(cattleRouter);
 router.use(investorsRouter);
 router.use(treatmentsRouter);

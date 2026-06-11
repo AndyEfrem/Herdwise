@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import { eq, ilike, and, inArray, asc, type SQL } from "drizzle-orm";
-import { getAuth } from "@clerk/express";
 import { db, cattleTable, investorsTable, weightRecordsTable } from "@workspace/db";
 import { computeMarketProjection, MARKET_WEIGHT_KG, type WeightPoint } from "../lib/market-projection";
+import { requireAdmin, requireMember } from "../lib/auth";
 import {
   ListCattleQueryParams,
   CreateAnimalBody,
@@ -13,12 +13,6 @@ import {
   DeleteAnimalParams,
 } from "@workspace/api-zod";
 
-async function getInvestorIdForUser(clerkUserId: string | null): Promise<number | null> {
-  if (!clerkUserId) return null;
-  const [inv] = await db.select({ id: investorsTable.id }).from(investorsTable).where(eq(investorsTable.clerkUserId, clerkUserId)).limit(1);
-  return inv?.id ?? null;
-}
-
 const router: IRouter = Router();
 
 router.get("/cattle", async (req, res): Promise<void> => {
@@ -28,14 +22,14 @@ router.get("/cattle", async (req, res): Promise<void> => {
     return;
   }
 
-  const { userId } = getAuth(req);
-  const callerInvestorId = await getInvestorIdForUser(userId ?? null);
+  const access = await requireMember(req, res);
+  if (!access) return;
 
   const { status, search } = query.data;
   let { investorId } = query.data;
 
   // Investors can only see their own cattle
-  if (callerInvestorId !== null) investorId = callerInvestorId;
+  if (!access.admin) investorId = access.investorId ?? undefined;
 
   const conditions: SQL[] = [];
 
@@ -111,6 +105,8 @@ router.post("/cattle", async (req, res): Promise<void> => {
     return;
   }
 
+  if (!(await requireAdmin(req, res))) return;
+
   const [animal] = await db.insert(cattleTable).values(parsed.data).returning();
 
   let investorName: string | null = null;
@@ -137,8 +133,8 @@ router.get("/cattle/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const { userId } = getAuth(req);
-  const callerInvestorId = await getInvestorIdForUser(userId ?? null);
+  const access = await requireMember(req, res);
+  if (!access) return;
 
   const [row] = await db
     .select({
@@ -168,7 +164,7 @@ router.get("/cattle/:id", async (req, res): Promise<void> => {
   }
 
   // Investors can only view their own cattle
-  if (callerInvestorId !== null && row.investorId !== callerInvestorId) {
+  if (!access.admin && row.investorId !== access.investorId) {
     res.status(403).json({ error: "Access denied" });
     return;
   }
@@ -208,6 +204,8 @@ router.patch("/cattle/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+
+  if (!(await requireAdmin(req, res))) return;
 
   const [animal] = await db
     .update(cattleTable)
@@ -249,6 +247,8 @@ router.delete("/cattle/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!(await requireAdmin(req, res))) return;
 
   const [animal] = await db
     .delete(cattleTable)

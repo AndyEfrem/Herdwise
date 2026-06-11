@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { useGetMe } from "@workspace/api-client-react";
 
-type UserRole = "admin" | "investor";
+type UserRole = "admin" | "investor" | "pending";
 
 interface UserRoleContext {
   role: UserRole;
@@ -9,22 +9,24 @@ interface UserRoleContext {
   investorName: string | null;
   isAdmin: boolean;
   isInvestor: boolean;
+  isPending: boolean;
   isLoading: boolean;
 }
 
 const RoleContext = createContext<UserRoleContext>({
-  role: "admin",
+  role: "pending",
   investorId: null,
   investorName: null,
-  isAdmin: true,
+  isAdmin: false,
   isInvestor: false,
+  isPending: true,
   isLoading: true,
 });
 
 export function UserRoleProvider({ children }: { children: ReactNode }) {
   const { data, isLoading } = useGetMe();
 
-  const role = (data?.role as UserRole) ?? "admin";
+  const role = (data?.role as UserRole) ?? "pending";
   const investorId = data?.investorId ?? null;
   const investorName = data?.investorName ?? null;
 
@@ -35,6 +37,7 @@ export function UserRoleProvider({ children }: { children: ReactNode }) {
       investorName,
       isAdmin: role === "admin",
       isInvestor: role === "investor",
+      isPending: role === "pending",
       isLoading,
     }}>
       {children}

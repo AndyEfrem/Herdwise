@@ -22,9 +22,42 @@ export const HealthCheckResponse = zod.object({
  */
 export const GetMeResponse = zod.object({
   "clerkUserId": zod.string(),
-  "role": zod.enum(['admin', 'investor']),
+  "role": zod.enum(['admin', 'investor', 'pending']),
   "investorId": zod.number().nullish(),
   "investorName": zod.string().nullish()
+})
+
+
+/**
+ * @summary List administrators
+ */
+export const ListAdminsResponseItem = zod.object({
+  "id": zod.number(),
+  "clerkUserId": zod.string(),
+  "email": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSelf": zod.boolean().optional()
+})
+export const ListAdminsResponse = zod.array(ListAdminsResponseItem)
+
+
+/**
+ * @summary Grant administrator access by Clerk user ID
+ */
+
+
+
+export const CreateAdminBody = zod.object({
+  "clerkUserId": zod.string().min(1),
+  "email": zod.string().nullish()
+})
+
+
+/**
+ * @summary Revoke administrator access
+ */
+export const DeleteAdminParams = zod.object({
+  "id": zod.coerce.number()
 })
 
 

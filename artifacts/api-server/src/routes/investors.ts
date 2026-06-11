@@ -9,10 +9,13 @@ import {
   UpdateInvestorBody,
   DeleteInvestorParams,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/auth";
 
 const router: IRouter = Router();
 
-router.get("/investors", async (_req, res): Promise<void> => {
+router.get("/investors", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
   const rows = await db
     .select({
       id: investorsTable.id,
@@ -38,6 +41,8 @@ router.get("/investors", async (_req, res): Promise<void> => {
 });
 
 router.post("/investors", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
   const parsed = CreateInvestorBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -56,6 +61,8 @@ router.post("/investors", async (req, res): Promise<void> => {
 });
 
 router.get("/investors/:id", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
   const params = GetInvestorParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -92,6 +99,8 @@ router.get("/investors/:id", async (req, res): Promise<void> => {
 });
 
 router.patch("/investors/:id", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
   const params = UpdateInvestorParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -131,6 +140,8 @@ router.patch("/investors/:id", async (req, res): Promise<void> => {
 });
 
 router.delete("/investors/:id", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
   const params = DeleteInvestorParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

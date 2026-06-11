@@ -1,10 +1,13 @@
 import { Router, type IRouter } from "express";
 import { eq, count, avg, gte, and, isNotNull } from "drizzle-orm";
 import { db, cattleTable, investorsTable, treatmentsTable } from "@workspace/db";
+import { requireAdmin } from "../lib/auth";
 
 const router: IRouter = Router();
 
-router.get("/dashboard/summary", async (_req, res): Promise<void> => {
+router.get("/dashboard/summary", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 

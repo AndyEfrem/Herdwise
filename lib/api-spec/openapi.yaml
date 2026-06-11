@@ -21,6 +21,8 @@ tags:
     description: Dashboard summaries
   - name: reports
     description: Farm analytics and reporting
+  - name: admins
+    description: Administrator access management
 paths:
   /healthz:
     get:
@@ -50,6 +52,101 @@ paths:
                 $ref: "#/components/schemas/UserProfile"
         "401":
           description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admins:
+    get:
+      operationId: listAdmins
+      tags: [admins]
+      summary: List administrators
+      responses:
+        "200":
+          description: List of administrators
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Admin"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: createAdmin
+      tags: [admins]
+      summary: Grant administrator access by Clerk user ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admin"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Already an administrator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admins/{id}:
+    delete:
+      operationId: deleteAdmin
+      tags: [admins]
+      summary: Revoke administrator access
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Revoked
+        "400":
+          description: Cannot revoke (e.g. last administrator or self)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
           content:
             application/json:
               schema:
@@ -822,10 +919,36 @@ components:
           type: string
         role:
           type: string
-          enum: [admin, investor]
+          enum: [admin, investor, pending]
         investorId:
           type: ["integer", "null"]
         investorName:
+          type: ["string", "null"]
+
+    Admin:
+      type: object
+      required: [id, clerkUserId, createdAt]
+      properties:
+        id:
+          type: integer
+        clerkUserId:
+          type: string
+        email:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        isSelf:
+          type: boolean
+
+    AdminInput:
+      type: object
+      required: [clerkUserId]
+      properties:
+        clerkUserId:
+          type: string
+          minLength: 1
+        email:
           type: ["string", "null"]
 
     WeightRecord:

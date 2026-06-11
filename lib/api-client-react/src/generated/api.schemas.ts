@@ -188,6 +188,7 @@ export type UserProfileRole = typeof UserProfileRole[keyof typeof UserProfileRol
 export const UserProfileRole = {
   admin: 'admin',
   investor: 'investor',
+  pending: 'pending',
 } as const;
 
 export interface UserProfile {
@@ -197,6 +198,22 @@ export interface UserProfile {
   investorId?: number | null;
   /** @nullable */
   investorName?: string | null;
+}
+
+export interface Admin {
+  id: number;
+  clerkUserId: string;
+  /** @nullable */
+  email?: string | null;
+  createdAt: string;
+  isSelf?: boolean;
+}
+
+export interface AdminInput {
+  /** @minLength 1 */
+  clerkUserId: string;
+  /** @nullable */
+  email?: string | null;
 }
 
 export interface WeightRecord {

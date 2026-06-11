@@ -12,4 +12,5 @@ export type UserProfileRole = typeof UserProfileRole[keyof typeof UserProfileRol
 export const UserProfileRole = {
   admin: 'admin',
   investor: 'investor',
+  pending: 'pending',
 } as const;

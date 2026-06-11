@@ -1,7 +1,6 @@
 import { Router, type IRouter } from "express";
 import { randomBytes } from "node:crypto";
 import { eq, inArray } from "drizzle-orm";
-import { getAuth } from "@clerk/express";
 import {
   db,
   cattleTable,
@@ -9,6 +8,7 @@ import {
   treatmentsTable,
   weightRecordsTable,
 } from "@workspace/db";
+import { requireAdmin, requireMember } from "../lib/auth";
 import {
   computeMarketProjection,
   MARKET_WEIGHT_KG,
@@ -25,18 +25,6 @@ import {
 } from "../lib/report-aggregates";
 
 const router: IRouter = Router();
-
-async function getInvestorIdForUser(
-  clerkUserId: string | null,
-): Promise<number | null> {
-  if (!clerkUserId) return null;
-  const [inv] = await db
-    .select({ id: investorsTable.id })
-    .from(investorsTable)
-    .where(eq(investorsTable.clerkUserId, clerkUserId))
-    .limit(1);
-  return inv?.id ?? null;
-}
 
 /**
  * Builds a progress report scoped to a single investor's cattle. Returns null
@@ -151,15 +139,7 @@ async function buildInvestorReport(investorId: number) {
 }
 
 router.get("/reports/summary", async (req, res): Promise<void> => {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
-  if ((await getInvestorIdForUser(userId)) !== null) {
-    res.status(403).json({ error: "Access denied" });
-    return;
-  }
+  if (!(await requireAdmin(req, res))) return;
 
   const cattle: CattleRow[] = await db
     .select({
@@ -261,20 +241,17 @@ router.get("/reports/summary", async (req, res): Promise<void> => {
 
 // Per-investor report: accessible to admins, or to the investor viewing their own.
 router.get("/reports/investors/:investorId", async (req, res): Promise<void> => {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
+  const access = await requireMember(req, res);
+  if (!access) return;
+
   const investorId = Number(req.params.investorId);
   if (!Number.isInteger(investorId) || investorId <= 0) {
     res.status(400).json({ error: "Invalid investor id" });
     return;
   }
 
-  const callerInvestorId = await getInvestorIdForUser(userId);
   // Investors may only access their own report; admins may access any.
-  if (callerInvestorId !== null && callerInvestorId !== investorId) {
+  if (!access.admin && access.investorId !== investorId) {
     res.status(403).json({ error: "Access denied" });
     return;
   }
@@ -288,22 +265,6 @@ router.get("/reports/investors/:investorId", async (req, res): Promise<void> => 
 });
 
 // Share-link management — admin only.
-async function requireAdmin(
-  req: Parameters<typeof getAuth>[0],
-  res: import("express").Response,
-): Promise<boolean> {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    res.status(401).json({ error: "Not authenticated" });
-    return false;
-  }
-  if ((await getInvestorIdForUser(userId)) !== null) {
-    res.status(403).json({ error: "Access denied" });
-    return false;
-  }
-  return true;
-}
-
 /**
  * Parses a positive-integer investor id from a route param. Sends a 400 and
  * returns null if the param is malformed.
