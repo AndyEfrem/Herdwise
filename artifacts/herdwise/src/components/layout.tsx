@@ -24,9 +24,9 @@ const adminNavItems = [
 ];
 
 const investorNavItems = [
+  { name: "My Report", href: "/my-report", icon: LayoutDashboard },
   { name: "My Cattle", href: "/cattle", icon: Box },
   { name: "Treatments", href: "/treatments", icon: Stethoscope },
-  { name: "My Report", href: "/my-report", icon: BarChart3 },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -35,9 +35,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   const { isAdmin, isInvestor, investorName } = useUserRole();
 
-  const navItems = isInvestor ? investorNavItems : adminNavItems;
+  const navItems = isAdmin ? adminNavItems : investorNavItems;
 
-  const displayName = investorName || user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || "User";
+  const displayName =
+    investorName ||
+    user?.fullName ||
+    user?.firstName ||
+    user?.primaryEmailAddress?.emailAddress ||
+    "User";
+
   const initials = displayName
     .split(" ")
     .slice(0, 2)
@@ -53,19 +59,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="h-8 w-8 bg-primary rounded flex items-center justify-center text-primary-foreground font-bold">
               H
             </div>
+
             <div>
               <h1 className="font-bold text-sidebar-foreground text-sm tracking-tight leading-none">
-                Herdwise
+                HerdWise
               </h1>
+
               <p className="text-[10px] text-sidebar-foreground/70 uppercase tracking-wider mt-0.5">
                 {isInvestor ? "Investor Portal" : "Farm Manager"}
               </p>
             </div>
           </div>
         </div>
+
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
           {navItems.map((item) => {
             const isActive = location.startsWith(item.href);
+
             return (
               <Link
                 key={item.href}
@@ -77,26 +87,37 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                 )}
               >
-                <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-sidebar-foreground/50")} />
+                <item.icon
+                  className={cn(
+                    "h-4 w-4",
+                    isActive
+                      ? "text-primary"
+                      : "text-sidebar-foreground/50"
+                  )}
+                />
                 {item.name}
               </Link>
             );
           })}
         </nav>
+
         <div className="p-4 border-t border-sidebar-border space-y-2">
           <div className="flex items-center gap-3 px-3 py-2 rounded-md">
             <div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sidebar-foreground font-medium text-xs flex-shrink-0">
               {initials}
             </div>
+
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-medium text-sidebar-foreground leading-none mb-1 truncate">
                 {displayName}
               </span>
+
               <span className="text-xs text-sidebar-foreground/60 leading-none">
                 {isInvestor ? "Investor" : "Farm Administrator"}
               </span>
             </div>
           </div>
+
           <Button
             variant="ghost"
             size="sm"
@@ -108,6 +129,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </Button>
         </div>
       </aside>
+
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-6xl p-6 lg:p-8 animate-in fade-in duration-500">
           {children}

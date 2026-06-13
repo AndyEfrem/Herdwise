@@ -23,6 +23,7 @@ export * from './investorInput';
 export * from './investorReport';
 export * from './investorReportRow';
 export * from './investorUpdate';
+export * from './inviteInvestor200';
 export * from './listCattleParams';
 export * from './listTreatmentsParams';
 export * from './marketReadinessReport';

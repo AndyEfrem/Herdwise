@@ -32,6 +32,7 @@ import type {
   InvestorInput,
   InvestorReport,
   InvestorUpdate,
+  InviteInvestor200,
   ListCattleParams,
   ListTreatmentsParams,
   ReportsSummary,
@@ -949,6 +950,76 @@ export const useCreateInvestor = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getCreateInvestorMutationOptions(options));
+    }
+
+export const getInviteInvestorUrl = (id: number,) => {
+
+
+
+
+  return `/api/investors/${id}/invite`
+}
+
+/**
+ * @summary Send investor portal invitation
+ */
+export const inviteInvestor = async (id: number, options?: RequestInit): Promise<InviteInvestor200> => {
+
+  return customFetch<InviteInvestor200>(getInviteInvestorUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getInviteInvestorMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof inviteInvestor>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof inviteInvestor>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['inviteInvestor'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof inviteInvestor>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  inviteInvestor(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type InviteInvestorMutationResult = NonNullable<Awaited<ReturnType<typeof inviteInvestor>>>
+
+    export type InviteInvestorMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Send investor portal invitation
+ */
+export const useInviteInvestor = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof inviteInvestor>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof inviteInvestor>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getInviteInvestorMutationOptions(options));
     }
 
 export const getGetInvestorUrl = (id: number,) => {

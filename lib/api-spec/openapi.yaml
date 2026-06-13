@@ -57,6 +57,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+
   /admins:
     get:
       operationId: listAdmins
@@ -301,7 +302,47 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Investor"
-
+  /investors/{id}/invite:
+    post:
+      operationId: inviteInvestor
+      tags: [investors]
+      summary: Send investor portal invitation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Invitation sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  invitationId:
+                    type: string
+                  email:
+                    type: string
+                required:
+                  - success
+                  - invitationId
+                  - email
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Investor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /investors/{id}:
     get:
       operationId: getInvestor

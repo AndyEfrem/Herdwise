@@ -239,6 +239,20 @@ export const CreateInvestorBody = zod.object({
 
 
 /**
+ * @summary Send investor portal invitation
+ */
+export const InviteInvestorParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const InviteInvestorResponse = zod.object({
+  "success": zod.boolean(),
+  "invitationId": zod.string(),
+  "email": zod.string()
+})
+
+
+/**
  * @summary Get investor by ID
  */
 export const GetInvestorParams = zod.object({

@@ -4,15 +4,45 @@ import { z } from "zod/v4";
 
 export const investorsTable = pgTable("investors", {
   id: serial("id").primaryKey(),
+
   name: text("name").notNull(),
-  email: text("email"),
+
+  email: text("email")
+    .notNull()
+    .unique(),
+
   phone: text("phone"),
-  clerkUserId: text("clerk_user_id").unique(),
-  shareToken: text("share_token").unique(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+
+  clerkUserId: text("clerk_user_id")
+    .unique(),
+
+  shareToken: text("share_token")
+    .unique(),
+
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+  })
+    .notNull()
+    .defaultNow(),
+
+  updatedAt: timestamp("updated_at", {
+    withTimezone: true,
+  })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
-export const insertInvestorSchema = createInsertSchema(investorsTable).omit({ id: true, createdAt: true, updatedAt: true, shareToken: true });
-export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
-export type Investor = typeof investorsTable.$inferSelect;
+export const insertInvestorSchema =
+  createInsertSchema(investorsTable).omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    shareToken: true,
+  });
+
+export type InsertInvestor =
+  z.infer<typeof insertInvestorSchema>;
+
+export type Investor =
+  typeof investorsTable.$inferSelect;

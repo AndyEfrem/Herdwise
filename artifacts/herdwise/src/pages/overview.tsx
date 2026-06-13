@@ -11,11 +11,10 @@ import {
   Legend,
 } from "recharts";
 import { format, parseISO } from "date-fns";
-
 export function Overview() {
   const { data: summary, isLoading } = useGetDashboardSummary();
 
-  if (isLoading || !summary) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Overview</h1>
@@ -33,15 +32,28 @@ export function Overview() {
             </Card>
           ))}
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Skeleton className="h-[300px] w-full rounded-xl" />
-          <Skeleton className="h-[300px] w-full rounded-xl" />
-        </div>
       </div>
     );
   }
 
-  const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+  const safeSummary = {
+    totalCattle: summary?.totalCattle ?? 0,
+    activeCattle: summary?.activeCattle ?? 0,
+    activeInvestors: summary?.activeInvestors ?? 0,
+    averageWeightKg: summary?.averageWeightKg ?? 0,
+    animalsWeighed: summary?.animalsWeighed ?? 0,
+    vaccinationsDue: summary?.vaccinationsDue ?? 0,
+    herdBreakdown: summary?.herdBreakdown ?? [],
+    upcomingCare: summary?.upcomingCare ?? [],
+  };
+
+  const COLORS = [
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))",
+    "hsl(var(--chart-5))",
+  ];
 
   return (
     <div className="space-y-8">
@@ -59,43 +71,50 @@ export function Overview() {
             <Box className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.totalCattle}</div>
+            <div className="text-2xl font-bold">{safeSummary.totalCattle}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {summary.activeCattle} active animals
+              {safeSummary.activeCattle} active animals
             </p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Investors</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.activeInvestors}</div>
+            <div className="text-2xl font-bold">{safeSummary.activeInvestors}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Active stakeholders
             </p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Average Weight</CardTitle>
             <Scale className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Math.round(summary.averageWeightKg)} kg</div>
+            <div className="text-2xl font-bold">
+              {Math.round(safeSummary.averageWeightKg)} kg
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Based on {summary.animalsWeighed} recorded weights
+              Based on {safeSummary.animalsWeighed} recorded weights
             </p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Vaccinations Due</CardTitle>
             <Stethoscope className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">{summary.vaccinationsDue}</div>
+            <div className="text-2xl font-bold text-destructive">
+              {safeSummary.vaccinationsDue}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Require attention soon
             </p>
@@ -109,11 +128,11 @@ export function Overview() {
             <CardTitle>Herd Status</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-center items-center h-[300px]">
-            {summary.herdBreakdown.length > 0 ? (
+            {safeSummary.herdBreakdown.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={summary.herdBreakdown}
+                    data={safeSummary.herdBreakdown}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -122,8 +141,11 @@ export function Overview() {
                     dataKey="count"
                     nameKey="status"
                   >
-                    {summary.herdBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {safeSummary.herdBreakdown.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -131,7 +153,9 @@ export function Overview() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-sm text-muted-foreground">No data available</div>
+              <div className="text-sm text-muted-foreground">
+                No herd status data available
+              </div>
             )}
           </CardContent>
         </Card>
@@ -141,19 +165,25 @@ export function Overview() {
             <CardTitle>Upcoming Care</CardTitle>
           </CardHeader>
           <CardContent>
-            {summary.upcomingCare.length > 0 ? (
+            {safeSummary.upcomingCare.length > 0 ? (
               <div className="space-y-4">
-                {summary.upcomingCare.map((item) => (
+                {safeSummary.upcomingCare.map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center justify-between border-b border-border/50 pb-4 last:border-0 last:pb-0"
                   >
                     <div className="flex flex-col gap-1">
-                      <span className="font-medium text-sm">Tag: {item.cattleTag}</span>
-                      <span className="text-xs text-muted-foreground">{item.treatmentType}</span>
+                      <span className="font-medium text-sm">
+                        Tag: {item.cattleTag}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {item.treatmentType}
+                      </span>
                     </div>
                     <div className="text-sm">
-                      {format(parseISO(item.scheduledDate), "MMM d, yyyy")}
+                      {item.scheduledDate
+                        ? format(parseISO(item.scheduledDate), "MMM d, yyyy")
+                        : "No date"}
                     </div>
                   </div>
                 ))}

@@ -25,6 +25,7 @@ const RoleContext = createContext<UserRoleContext>({
 
 export function UserRoleProvider({ children }: { children: ReactNode }) {
   const { data, isLoading } = useGetMe();
+  console.log("USER DATA:", data);
 
   const role = (data?.role as UserRole) ?? "pending";
   const investorId = data?.investorId ?? null;

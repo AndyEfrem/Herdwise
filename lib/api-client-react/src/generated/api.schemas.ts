@@ -375,6 +375,12 @@ investorId?: number;
 search?: string;
 };
 
+export type InviteInvestor200 = {
+  success: boolean;
+  invitationId: string;
+  email: string;
+};
+
 export type ListTreatmentsParams = {
 cattleId?: number;
 upcoming?: boolean;
