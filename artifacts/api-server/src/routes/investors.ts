@@ -102,7 +102,7 @@ router.post("/investors/:id/invite", async (req, res): Promise<void> => {
       emailAddress: investor.email,
       notify: true,
       ignoreExisting: true,
-      redirectUrl: "http://localhost:5173/",
+      redirectUrl: "https://herdwise-herdwise-km35.vercel.app/",
     });
 
     res.json({
